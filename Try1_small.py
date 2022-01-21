@@ -5,10 +5,15 @@ import pandas as pd
 import datetime
 
 
+print(datetime.datetime.now(), flush=True)
+
+
 from nibabel.testing import data_path
 img = nib.load("../data/ZHRTS2_small.nii")
 print(img.shape)
 
+
+print(datetime.datetime.now(), flush=True)
 
 
 img_new = img.get_fdata()
@@ -68,26 +73,51 @@ TR_test = TR_values[test_ind]
 
 
 
-print(datetime.datetime.now())
+
 
 
 
 
 from estimate.Bloch import *
 
-#W_LS = LS_est(TE_train, TR_train, train, TE_scale, TR_scale)
+# print(datetime.datetime.now(), flush=True)
 
-# W_LS = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+# W_LS = LS_est(TE_train, TR_train, train, TE_scale, TR_scale)
 
-#pd.DataFrame(W_LS).to_csv("W_LS_small.csv", header=None, index=None)
+# print(datetime.datetime.now(), flush=True)
 
-print(datetime.datetime.now())
+# W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+
+
+# print(datetime.datetime.now(), flush=True)
+
+# pd.DataFrame(W_LS).to_csv("W_LS_small.csv", header=None, index=None)
+
+# pd.DataFrame(W_LS_par).to_csv("W_LS_par_small.csv", header=None, index=None)
 
 # print(W_LS[0:10,])
+# print(W_LS_par[0:10,])
 
+
+
+# W_LS_par = pd.read_csv("W_LS_par_small.csv", header=None, index=None)
+W_LS_par = pd.read_csv("W_LS_par_small.csv", header=None).to_numpy()
 
 
 
 from estimate.Bloch_MLE import *
 
-W_MLE = MLE_est(TE_train, TR_train, train, TE_scale, TR_scale, sigma_train)
+print(datetime.datetime.now(), flush=True)
+
+W_MLE = MLE_est(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
+
+print(datetime.datetime.now(), flush=True)
+
+W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
+
+print(datetime.datetime.now(), flush=True)
+
+
+pd.DataFrame(W_MLE).to_csv("W_MLE_small.csv", header=None, index=None)
+
+pd.DataFrame(W_MLE_par).to_csv("W_MLE_par_small.csv", header=None, index=None)

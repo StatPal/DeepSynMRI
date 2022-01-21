@@ -20,7 +20,7 @@ if debug:
 
 
 from math import exp, log
-from scipy.special import i0
+from scipy.special import i0, i0e
 
 def obj_fn(W_i, TE_vec, TR_vec, train_i, sigma):
     m = train_i.size
@@ -29,7 +29,8 @@ def obj_fn(W_i, TE_vec, TR_vec, train_i, sigma):
     for j in range(m):
         tmp2 = train_i[j]/(sigma[j] ** 2)
         tmp3 = (train_i[j] ** 2 + pred[j] ** 2)/(2 * (sigma[j] ** 2))
-        tmp1 = log(i0(tmp2*pred[j]));
+        # tmp1 = log(i0(tmp2*pred[j]));  ## Possibly creating bugs
+        tmp1 = log(i0e(tmp2*pred[j])) + (tmp2*pred[j]);   ## i0e(x) = exp(-abs(x)) * i0(x)  =>  log(i0e(x)) = -abs(x) + log(i0(x))
         likeli_sum = likeli_sum + (log(tmp2) + tmp1 - 0.5*tmp3);
     
     return likeli_sum
@@ -53,22 +54,21 @@ if debug:
 
 
 
-def MLE_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train):
+def MLE_est(W_init, TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train, mask):
     bnds = ((0.0001, 450), (exp(-1/(0.01*TR_scale)), exp(-1/(4*TR_scale))), (exp(-1/(0.001*TE_scale)), exp(-1/(0.2*TE_scale))))
     print(bnds)
-    x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
 
     n, m = train_mat.shape
     print(n)
-    W = np.empty(shape=[n, 3])
+    W = W_init
     for i in range(n):
         if i % 10000 == 0:
             print(i)
-        additional = (TE_vec, TR_vec, train_mat[i], sigma_train)
-        x0[0] = np.mean(train_mat[i])
-        abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
-        #print(abc)
-        W[i,] = abc.x
+        if mask[i] == 0:
+            additional = (TE_vec, TR_vec, train_mat[i], sigma_train)
+            x0 = W_init[i]
+            abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
+            W[i,] = abc.x
     
     return W
 
@@ -77,22 +77,25 @@ def MLE_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train):
 
 from joblib import Parallel, delayed
 
-def MLE_est_i(i, TE_vec, TR_vec, train_mat, x0, bnds, sigma_train):
-    additional = (TE_vec, TR_vec, train_mat[i], sigma_train)
-    x0[0] = np.mean(train_mat[i])
-    abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
-    return abc.x
+def MLE_est_i(i, W_init, TE_vec, TR_vec, train_mat, bnds, sigma_train, mask):
+    if mask[i] == 0:
+        additional = (TE_vec, TR_vec, train_mat[i], sigma_train)
+        x0 = W_init[i]
+        abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
+        return abc.x
+    else:
+        return W_init[i]
 
 
-def MLE_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train):
+def MLE_est_par(W_init, TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train, mask):
     bnds = ((0.0001, 450), (exp(-1/(0.01*TR_scale)), exp(-1/(4*TR_scale))), (exp(-1/(0.001*TE_scale)), exp(-1/(0.2*TE_scale))))
     x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
 
     n, m = train_mat.shape
     print(n)
-    W = np.empty(shape=[n, 3])
+    W = W_init
     
     W = Parallel(n_jobs=2)(
-            delayed(LS_est_i)(i, TE_vec, TR_vec, train_mat, x0, bnds, sigma_train) for i in range(n))
+            delayed(LS_est_i)(i, W_init, TE_vec, TR_vec, train_mat, bnds, sigma_train, mask) for i in range(n))
     return W
 
