@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import nibabel as nib
+import pandas as pd
+import datetime
 
 
 from nibabel.testing import data_path
@@ -66,7 +68,7 @@ TR_test = TR_values[test_ind]
 
 
 
-
+print(datetime.datetime.now())
 
 
 
@@ -75,8 +77,17 @@ from estimate.Bloch import *
 
 #W_LS = LS_est(TE_train, TR_train, train, TE_scale, TR_scale)
 
-W_LS = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+# W_LS = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
 
 #pd.DataFrame(W_LS).to_csv("W_LS_small.csv", header=None, index=None)
 
-print(W_LS[0:10,])
+print(datetime.datetime.now())
+
+# print(W_LS[0:10,])
+
+
+
+
+from estimate.Bloch_MLE import *
+
+W_MLE = MLE_est(TE_train, TR_train, train, TE_scale, TR_scale, sigma_train)
