@@ -1,37 +1,24 @@
 import os
 import numpy as np
 import nibabel as nib
+import pandas as pd
+import datetime
+
+
+print(datetime.datetime.now(), flush=True)
 
 
 from nibabel.testing import data_path
-# example_filename = os.path.join(data_path, 'example4d.nii.gz')
-# example_filename = os.path.join(data_path, 'example4d.nii.gz')
-# img = nib.load(example_filename)
-# img_new = img.get_fdata()
-# # print(img_new[1,])
-
-
-img = nib.load("../data/ZHRTS2_small.nii")
+img = nib.load("../data/ZHRTS2.nii")
 print(img.shape)
-
+print(datetime.datetime.now(), flush=True)
 
 
 img_new = img.get_fdata()
 print(img_new.shape)
-#print(img_new[127,127,0,:])
-
-#print(img_new[127:130,127:130,0:2,0])
-
-# print(img_new[27:30,27:30,0,0])
-# print("\n")
-# print(img_new[27:30,27:30,0:2,0])
-# print("\n")
-# print(img_new[27:30,27:30,0:2,0].transpose([0,2,1]))
-# #print(img_new[127:130,127:130,0:2,0].shape)
-# print(img_new[27:30,27:30,0:2,0].transpose([2,1,0]).reshape(-1))
 
 
-image_vec = np.ones([256*256*20, 12])
+image_vec = np.ones([128*128*20, 12])
 for i in range(12):
     image_vec[:, i] = img_new[:,:,:,i].transpose([2,1,0]).reshape(-1)  ## Transpose to match with that of R 
 
@@ -75,11 +62,33 @@ TR_test = TR_values[test_ind]
 
 
 
-
+### LS and MLE estimates
 
 
 from estimate.Bloch import *
 
-W = LS_est(TE_train, TR_train, train, TE_scale, TR_scale)
+print(datetime.datetime.now(), flush=True)
+W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+print(datetime.datetime.now(), flush=True)
+pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
+print(W_LS_par[0:10,])
 
-print(W[0:10,])
+# # W_LS_par = pd.read_csv("W_LS_par.csv", header=None, index=None)
+# W_LS_par = pd.read_csv("W_LS_par.csv", header=None).to_numpy()
+
+
+
+from estimate.Bloch_MLE import *
+print(datetime.datetime.now(), flush=True)
+W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
+print(datetime.datetime.now(), flush=True)
+
+pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
+
+
+
+
+
+### DL from W
+
+
