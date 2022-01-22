@@ -18,7 +18,7 @@ img_new = img.get_fdata()
 print(img_new.shape)
 
 
-image_vec = np.ones([128*128*20, 12])
+image_vec = np.ones([256*256*20, 12])
 for i in range(12):
     image_vec[:, i] = img_new[:,:,:,i].transpose([2,1,0]).reshape(-1)  ## Transpose to match with that of R 
 
@@ -68,13 +68,12 @@ TR_test = TR_values[test_ind]
 from estimate.Bloch import *
 
 print(datetime.datetime.now(), flush=True)
-W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
-print(datetime.datetime.now(), flush=True)
-pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
-print(W_LS_par[0:10,])
+# W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+# print(datetime.datetime.now(), flush=True)
+# pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
+# # print(W_LS_par[0:10,])
 
-# # W_LS_par = pd.read_csv("W_LS_par.csv", header=None, index=None)
-# W_LS_par = pd.read_csv("W_LS_par.csv", header=None).to_numpy()
+W_LS_par = pd.read_csv("intermed/W_LS_par.csv", header=None).to_numpy()
 
 
 
@@ -91,4 +90,6 @@ pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None
 
 ### DL from W
 
+
+DL_W(W_LS_par, [20, 256, 256, 3], transpose_vec, 256, 256, 20, 5000)
 
