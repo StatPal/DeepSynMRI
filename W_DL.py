@@ -153,17 +153,27 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 
 		################# OPTIMIZE ######################
+		global i, out_avg, psrn_noisy_last, last_net
+		## Added by Subrata, 
+		# See https://stackoverflow.com/questions/423379/using-global-variables-in-a-function
+		# As it is a nested function definition, the out_avg is not in the original global scope
+		# https://stackoverflow.com/questions/51662467/using-a-global-variable-inside-a-function-nested-in-a-function-in-python
+		# somehow the net_input creates problem. 
+		# https://stackoverflow.com/questions/5218895/python-nested-functions-variable-scoping  -- uses nonlocal
+
+
 		net_input_saved = net_input.detach().clone()
 		noise = net_input.detach().clone()
 		out_avg = None
 		last_net = None
 		psrn_noisy_last = 0
 
+
 		i = 0
 		def closure():
 			
 			global i, out_avg, psrn_noisy_last, last_net, net_input
-			
+
 			if reg_noise_std > 0:
 				net_input = net_input_saved + (noise.normal_() * reg_noise_std)
 			
@@ -194,26 +204,20 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor/255
-				#out_np = out_np.reshape(n_x* n_y * n_z)
-				
-	#			pd.DataFrame().to_csv("3D_"+str(target)+".csv", header=None, index=None)
+				# out_np = out_np.reshape(n_x* n_y * n_z)	
+				# pd.DataFrame().to_csv("3D_"+str(target)+".csv", header=None, index=None)
 				print(out_np.shape)
-				plt.imshow(out_np[:,:,10])
-				plt.savefig("images/3D_"+str(i)+"_test_4.pdf")
-				
-	#		    plot_image_grid([np.clip(out_np, 0, 1), 
-	#		                     np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="original_paper_images/steps"+str(i)+".pdf")
-			
-			
-			
+				#plt.imshow(out_np[:,:,10])
+				#plt.savefig("images/3D_"+str(i)+"_test_4.pdf")
+				#plot_image_grid([np.clip(out_np, 0, 1), 
+			    #                 np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="original_paper_images/steps"+str(i)+".pdf")
 			if i % 1000 == 0:
 				out_np = torch_to_np(out)
 				out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor
 				
-				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("result/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
-				
+				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
 			
 			
 			# Backtracking
@@ -232,6 +236,7 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 			i += 1
 
 			return total_loss
+
 
 		p = get_params(OPT_OVER, net, net_input)
 		optimize(OPTIMIZER, p, closure, LR, num_iter)
@@ -256,9 +261,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		#print("\ndat_target_orig: ", pd.DataFrame(dat_target_orig.reshape(n_x * n_y * n_z)).describe(), "\ndat_target: ", pd.DataFrame(dat_target.reshape(256* 256*20)).describe(), "\nout_np: ", pd.DataFrame(out_np.reshape(256* 256*20)).describe())
 
 		plt.imshow(out_np[:,:,10])
-		plt.savefig("result/3D_"+str(target)+"_test_4.pdf")
+		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
 		out_np_rotated = out_np.transpose(2, 1, 0)
-		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("result/3D_"+str(target)+"_test_4.csv", header=None, index=None)
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)
 		
 		# add transpose 
 
