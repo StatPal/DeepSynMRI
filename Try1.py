@@ -78,18 +78,18 @@ W_LS_par = pd.read_csv("intermed/W_LS_par.csv", header=None).to_numpy()
 
 
 from estimate.Bloch_MLE import *
-print(datetime.datetime.now(), flush=True)
-W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
-print(datetime.datetime.now(), flush=True)
+# print(datetime.datetime.now(), flush=True)
+# W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
+# print(datetime.datetime.now(), flush=True)
 
-pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
+# pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
 
 
+W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
 
 
 
 ### DL from W
-
-
-DL_W(W_LS_par, [20, 256, 256, 3], transpose_vec, 256, 256, 20, 5000)
+from W_DL import DL_W
+DL_W(W_LS_par, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
 

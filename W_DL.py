@@ -10,10 +10,12 @@ warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+from models import *
 
 import torch
 import torch.optim
 from skimage.metrics import peak_signal_noise_ratio
+from utils.denoising_utils import *
 import time
 
 t = time.localtime()
@@ -50,7 +52,7 @@ import pandas as pd
 def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 	dat_iter = W
-	dat_2 = dat_iter.reshape(20, 256, 256, 3)
+	dat_2 = dat_iter.reshape(n_z, n_x, n_y, 3)
 	dat_2 = dat_2.transpose(1, 2, 0, 3)
 	W_out = np.copy(W)
 
@@ -89,7 +91,7 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		print("padded shape: ", new_shape)
 
 		img_noisy_pil = np.zeros(new_shape)
-		img_noisy_pil[0:256,0:256,0:20] = act_image
+		img_noisy_pil[0:n_x,0:n_y,0:n_z] = act_image
 
 		img_noisy_np = pil_to_np(img_noisy_pil)
 		img_noisy_np = img_noisy_np[None, :]	## Added
@@ -190,9 +192,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 			if  PLOT and i % show_every == 0:
 				out_np = torch_to_np(out)
 				out_np = out_np.transpose(0,3,2,1)
-				out_np = out_np[0,0:256,0:256,0:20]
+				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor/255
-				#out_np = out_np.reshape(256* 256*20)
+				#out_np = out_np.reshape(n_x* n_y * n_z)
 				
 	#			pd.DataFrame().to_csv("3D_"+str(target)+".csv", header=None, index=None)
 				print(out_np.shape)
@@ -207,10 +209,10 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 			if i % 1000 == 0:
 				out_np = torch_to_np(out)
 				out_np = out_np.transpose(0,3,2,1)
-				out_np = out_np[0,0:256,0:256,0:20]
+				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor
 				
-				pd.DataFrame(out_np.reshape(256* 256*20)).to_csv("result/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
+				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("result/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
 				
 			
 			
@@ -246,21 +248,21 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		print("shape is:", out_np.shape)
 		out_np = out_np.transpose(0,3,2,1)
 		print("shape is:", out_np.shape)
-		out_np = out_np[0,0:256,0:256,0:20]
+		out_np = out_np[0, 0:n_x, 0:n_y, 0:n_z]
 		print("shape is:", out_np.shape)
 		out_np = out_np*scaling_factor   ## /255
 
 
-		#print("\ndat_target_orig: ", pd.DataFrame(dat_target_orig.reshape(256* 256*20)).describe(), "\ndat_target: ", pd.DataFrame(dat_target.reshape(256* 256*20)).describe(), "\nout_np: ", pd.DataFrame(out_np.reshape(256* 256*20)).describe())
+		#print("\ndat_target_orig: ", pd.DataFrame(dat_target_orig.reshape(n_x * n_y * n_z)).describe(), "\ndat_target: ", pd.DataFrame(dat_target.reshape(256* 256*20)).describe(), "\nout_np: ", pd.DataFrame(out_np.reshape(256* 256*20)).describe())
 
 		plt.imshow(out_np[:,:,10])
 		plt.savefig("result/3D_"+str(target)+"_test_4.pdf")
 		out_np_rotated = out_np.transpose(2, 1, 0)
-		pd.DataFrame(out_np.reshape(256* 256*20)).to_csv("result/3D_"+str(target)+"_test_4.csv", header=None, index=None)
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("result/3D_"+str(target)+"_test_4.csv", header=None, index=None)
 		
 		# add transpose 
 
-		W_out[target] = out_np_rotated.reshape(256* 256*20)
+		W_out[target] = out_np_rotated.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
 	return W_out

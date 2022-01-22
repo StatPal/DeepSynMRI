@@ -115,3 +115,12 @@ def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
             delayed(LS_est_i)(i, TE_vec, TR_vec, train_mat, x0, bnds) for i in range(n))
     return W
 
+
+def Bloch_i(i, W, TE_vec, TR_vec):
+    return (W[i, 0] * (1 - W[i, 1]**TR_vec) * W[i, 2]**TE_vec)
+
+def predict_image(W, TE_vec, TR_vec):
+    pred = Parallel(n_jobs=2)(
+            delayed(Bloch)(i, W, TE_vec, TR_vec) for i in range(n))
+    return pred
+

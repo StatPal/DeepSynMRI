@@ -26,7 +26,7 @@ print(results)
 def big_fn(n, n_job):
     def process(i):
         return [i ** 0.3];
-    results = Parallel(n_jobs=n_job)(
+    results = Parallel(n_jobs=n_job)(                # , prefer="threads" does notimproving the time - even with differnet number of cores. Best is 2. 
         delayed(process)(i) for i in range(n))
     return results
 
@@ -37,6 +37,7 @@ def big_fn(n, n_job):
 import time
 
 start = time.time()
-print(big_fn(4, 2))
+# print(big_fn(4, 2))
+big_fn(50000, 2)
 end = time.time()
 print(end - start)
