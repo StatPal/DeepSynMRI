@@ -90,6 +90,7 @@ W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
 
 
 ### DL from W
-from W_DL import DL_W
+# from W_DL import DL_W
+from W_DL_CPU import DL_W
 DL_W(W_LS_par, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
 

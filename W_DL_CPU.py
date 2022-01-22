@@ -24,7 +24,7 @@ print("current time = ", current_time, flush = True)
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
-dtype = torch.cuda.FloatTensor      # Change to dtype = torch.FloatTensor for CPU
+dtype = torch.FloatTensor
 
 imsize =-1
 PLOT = True
@@ -226,7 +226,7 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 					print('Falling back to previous checkpoint.')
 
 					for new_param, net_param in zip(last_net, net.parameters()):
-						net_param.data.copy_(new_param.cuda())
+						net_param.data.copy_(new_param.cpu())
 
 					return total_loss*0
 				else:
@@ -262,9 +262,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 		plt.imshow(out_np[:,:,10])
 		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
-		out_np_rotated = out_np.transpose(2, 1, 0)   # add transpose 
+		out_np_rotated = out_np.transpose(2, 1, 0)		# add transpose 
 		pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)
-		
+
 		W_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
