@@ -83,22 +83,20 @@ from estimate.Bloch_MLE import *
 # print(datetime.datetime.now(), flush=True)
 
 # pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
-
-
 W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
 
 
+LS_pred = predict_image(W_LS_par, TE_test, TR_test)
+pd.DataFrame(LS_pred).to_csv("intermed/LS_pred.csv", header=None, index=None)
+
 
 ### DL from W
-# from W_DL import DL_W
-from W_DL_CPU import DL_W
-W_DL_LS = DL_W(W_LS_par, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
-pd.DataFrame(W_DL_LS).to_csv("intermed/W_DL_LS.csv", header=None, index=None)
-W_LS_par = pd.read_csv("intermed/W_DL_LS.csv", header=None).to_numpy()
+from pred_DL import DL_v
+
+LS_pred_DL = DL_W(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
+pd.DataFrame(LS_pred_DL).to_csv("intermed/LS_pred_DL.csv", header=None, index=None)
 
 
 
-LS_DL_pred = predict_image(W_DL_LS, TE_test, TR_test)
-pd.DataFrame(LS_DL_pred).to_csv("intermed/LS_DL_pred.csv", header=None, index=None)
 
 

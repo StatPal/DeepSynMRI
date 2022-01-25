@@ -55,7 +55,7 @@ def DL_v(v, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 	n, m = v.shape
 	dat_2 = dat_iter.reshape(n_z, n_x, n_y, m)
 	dat_2 = dat_2.transpose(1, 2, 0, 3)
-	W_out = np.copy(W)
+	v_out = np.copy(v)
 
 
 	for target in range(0, m):
@@ -218,7 +218,7 @@ def DL_v(v, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor
 				
-				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
+				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_v_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
 			
 			
 			# Backtracking
@@ -262,13 +262,13 @@ def DL_v(v, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		#print("\ndat_target_orig: ", pd.DataFrame(dat_target_orig.reshape(n_x * n_y * n_z)).describe(), "\ndat_target: ", pd.DataFrame(dat_target.reshape(256* 256*20)).describe(), "\nout_np: ", pd.DataFrame(out_np.reshape(256* 256*20)).describe())
 
 		plt.imshow(out_np[:,:,10])
-		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
+		plt.savefig("intermed/3D_v_"+str(target)+"_test_4.pdf")
 		out_np_rotated = out_np.transpose(2, 1, 0)   # add transpose 
-		pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)
+		pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_v_"+str(target)+"_test_4.csv", header=None, index=None)
 		
-		W_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
+		v_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
-	return W_out
+	return v_out
 
 
