@@ -87,13 +87,14 @@ W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
 
 
 LS_pred = predict_image(W_LS_par, TE_test, TR_test)
+LS_pred = np.asarray(LS_pred)
 pd.DataFrame(LS_pred).to_csv("intermed/LS_pred.csv", header=None, index=None)
 
 
 ### DL from W
 from pred_DL import DL_v
 
-LS_pred_DL = DL_W(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
+LS_pred_DL = DL_v(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
 pd.DataFrame(LS_pred_DL).to_csv("intermed/LS_pred_DL.csv", header=None, index=None)
 
 
