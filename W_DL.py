@@ -227,6 +227,7 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 					for new_param, net_param in zip(last_net, net.parameters()):
 						net_param.data.copy_(new_param.cuda())
+						## net_param.data.copy_(new_param.cpu()) for CPU
 
 					return total_loss*0
 				else:

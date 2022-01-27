@@ -9,7 +9,7 @@ print(datetime.datetime.now(), flush=True)
 
 
 from nibabel.testing import data_path
-img = nib.load("../data/ZHRTS2.nii")
+img = nib.load("../data/ZHRTS2.nii")    ## Load data file
 print(img.shape)
 print(datetime.datetime.now(), flush=True)
 
@@ -20,10 +20,9 @@ print(img_new.shape)
 
 image_vec = np.ones([256*256*20, 12])
 for i in range(12):
-    image_vec[:, i] = img_new[:,:,:,i].transpose([2,1,0]).reshape(-1)  ## Transpose to match with that of R 
+    image_vec[:, i] = img_new[:,:,:,i].transpose([2,1,0]).reshape(-1)  ## Transpose to match with shape of R 
 
 print(image_vec.shape)
-print(image_vec[1200,:])
 
 
 image_vec[image_vec == 0.0] = 0.5 ## Pre-processing to remove the -Inf issue in likelihood.
@@ -67,36 +66,48 @@ TR_test = TR_values[test_ind]
 
 from estimate.Bloch import *
 
+from estimate.LS import *
+
 print(datetime.datetime.now(), flush=True)
-# W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
-# print(datetime.datetime.now(), flush=True)
-# pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
-# # print(W_LS_par[0:10,])
+W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
+pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
+print(datetime.datetime.now(), flush=True)
 
 W_LS_par = pd.read_csv("intermed/W_LS_par.csv", header=None).to_numpy()
 
 
+## MLE estimate
+from estimate.MLE import *
+print(datetime.datetime.now(), flush=True)
+W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
+pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
+print(datetime.datetime.now(), flush=True)
 
-from estimate.Bloch_MLE import *
-# print(datetime.datetime.now(), flush=True)
-# W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
-# print(datetime.datetime.now(), flush=True)
-
-# pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
 W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
 
 
+
+## prediction 
 LS_pred = predict_image(W_LS_par, TE_test, TR_test)
 LS_pred = np.asarray(LS_pred)
 pd.DataFrame(LS_pred).to_csv("intermed/LS_pred.csv", header=None, index=None)
 
+MLE_pred = predict_image(W_MLE_par, TE_test, TR_test)
+MLE_pred = np.asarray(MLE_pred)
+pd.DataFrame(MLE_pred).to_csv("intermed/MLE_pred.csv", header=None, index=None)
 
-### DL from W
+
+
+### DL after prediction
 from pred_DL import DL_v
 
-LS_pred_DL = DL_v(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, 5000)
+num_iter = 5000
+LS_pred_DL = DL_v(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, num_iter)
 pd.DataFrame(LS_pred_DL).to_csv("intermed/LS_pred_DL.csv", header=None, index=None)
 
+num_iter = 5000
+MLE_pred_DL = DL_v(MLE_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, num_iter)
+pd.DataFrame(MLE_pred_DL).to_csv("intermed/MLE_pred_DL.csv", header=None, index=None)
 
 
 
