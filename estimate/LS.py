@@ -1,5 +1,7 @@
 import numpy as np
-from Bloch import *
+from estimate.Bloch import *
+
+debug = 0;
 
 
 from math import exp, log
@@ -81,6 +83,8 @@ def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
 from joblib import Parallel, delayed
 
 def LS_est_i(i, TE_vec, TR_vec, train_mat, x0, bnds):
+    if i % 10000 == 0:
+        print(i)
     additional = (TE_vec, TR_vec, train_mat[i])
     x0[0] = np.mean(train_mat[i])
     abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)

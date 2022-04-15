@@ -68,47 +68,14 @@ from estimate.Bloch import *
 
 from estimate.LS import *
 
-print(datetime.datetime.now(), flush=True)
-W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
-pd.DataFrame(W_LS_par).to_csv("intermed/W_LS_par.csv", header=None, index=None)
-print(datetime.datetime.now(), flush=True)
+# pd.DataFrame(LS_pred).to_csv("intermed/LS_pred.csv", header=None, index=None)
 
-W_LS_par = pd.read_csv("intermed/W_LS_par.csv", header=None).to_numpy()
+LS_pred = pd.read_csv("intermed/LS_pred.csv", header=None);
 
+(abs(LS_pred - test)).mean(axis=0)
 
-# ## MLE estimate
-# from estimate.MLE import *
-# print(datetime.datetime.now(), flush=True)
-# W_MLE_par = MLE_est_par(W_LS_par, TE_train, TR_train, train, TE_scale, TR_scale, sigma_train, mask)
-# pd.DataFrame(W_MLE_par).to_csv("intermed/W_MLE_par.csv", header=None, index=None)
-# print(datetime.datetime.now(), flush=True)
+this_bnd = np.asarray([2.432390, 2.549109, 4.123066, 3.326344, 3.260466, 10.301354, 3.957978, 4.030147, 3.509603])
+other_bnd = np.asarray([2.432421, 2.549141, 4.123078, 3.326372, 3.260465, 10.301330, 3.957997, 4.030103, 3.509567])
 
-# W_MLE_par = pd.read_csv("intermed/W_MLE_par.csv", header=None).to_numpy()
-
-
-
-## prediction 
-LS_pred = predict_image(W_LS_par, TE_test, TR_test)
-LS_pred = np.asarray(LS_pred)
-pd.DataFrame(LS_pred).to_csv("intermed/LS_pred.csv", header=None, index=None)
-
-# MLE_pred = predict_image(W_MLE_par, TE_test, TR_test)
-# MLE_pred = np.asarray(MLE_pred)
-# pd.DataFrame(MLE_pred).to_csv("intermed/MLE_pred.csv", header=None, index=None)
-
-
-
-# ### DL after prediction
-# from pred_DL import DL_v
-
-# num_iter = 5000
-# LS_pred_DL = DL_v(LS_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, num_iter)
-# pd.DataFrame(LS_pred_DL).to_csv("intermed/LS_pred_DL.csv", header=None, index=None)
-
-# num_iter = 5000
-# MLE_pred_DL = DL_v(MLE_pred, [20, 256, 256, 3], [1, 2, 0, 3], 256, 256, 20, num_iter)
-# pd.DataFrame(MLE_pred_DL).to_csv("intermed/MLE_pred_DL.csv", header=None, index=None)
-
-
-
+sum(other_bnd / this_bnd)/9
 
