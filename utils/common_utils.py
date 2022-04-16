@@ -162,10 +162,11 @@ def pil_to_np(img_PIL):
     '''
     ar = np.array(img_PIL)
 
-    if len(ar.shape) == 3:
-        ar = ar.transpose(2,0,1)
-    else:
-        ar = ar[None, ...]
+    # if len(ar.shape) == 3:
+        # ar = ar.transpose(2,0,1)
+    # else:
+        # ar = ar[None, ...]
+    ## As we are doing a single channel 3D case. 
 
     return ar.astype(np.float32) / 255.
 

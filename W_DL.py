@@ -24,7 +24,7 @@ print("current time = ", current_time, flush = True)
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
-dtype = torch.cuda.FloatTensor      # Change to dtype = torch.FloatTensor for CPU
+dtype = torch.FloatTensor      # Change to dtype = torch.FloatTensor for CPU
 
 imsize =-1
 PLOT = True
@@ -49,12 +49,18 @@ import pandas as pd
 
 # num_iter = 15000
 
+# Fri Apr 15 08:45:56 PM CDT 2022
+# Everything in the n_z, n_y, n_y
+# No -- according to the current file: n_x, n_y, n_z
+
+
 def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 	dat_iter = W
-	dat_2 = dat_iter.reshape(n_z, n_x, n_y, 3)
-	dat_2 = dat_2.transpose(1, 2, 0, 3)
+	dat_2 = dat_iter.reshape(n_x, n_y, n_z, 3)
+	# dat_2 = dat_2.transpose(1, 2, 0, 3)
 	W_out = np.copy(W)
+	print(dat_2.shape)	
 
 
 	for target in range(0, 3):
@@ -67,14 +73,11 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		ar = np.clip(dat_target,0,255).astype(np.uint8)
 		if dat_target.shape[0] == 1:
 			ar = ar[0]
-		else:
-			ar = ar.transpose(0, 1, 2)
 		act_image = ar
 
 
 		## Pad images:
-		new_shape = (act_image.shape[0] - act_image.shape[0] % 32, act_image.shape[1] - act_image.shape[1] % 32, 
-					act_image.shape[2] - act_image.shape[2] % 32)
+		new_shape = (act_image.shape[0] - act_image.shape[0] % 32, act_image.shape[1] - act_image.shape[1] % 32, act_image.shape[2] - act_image.shape[2] % 32)
 		if act_image.shape[0] % 32 != 0:
 			tmp_1 = new_shape[0]+32
 		else:
@@ -116,13 +119,8 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		show_every = 100
 		exp_weight=0.99
 
-
-		# num_iter = 3500
-		# num_iter = 6500  # Subrata
-		# num_iter = 15000  # Subrata new
 		input_depth = 16
 		figsize = 5
-
 		net = skip(
 				input_depth, 1, 
 				num_channels_down = [16, 32, 64, 128],
@@ -133,9 +131,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
 
 		net = net.type(dtype)
-		net_input = get_noise(input_depth, INPUT, (img_pil.shape[2], img_pil.shape[1], img_pil.shape[0])).type(dtype).detach()
+		net_input = get_noise(input_depth, INPUT, (img_pil.shape[0], img_pil.shape[1], img_pil.shape[2])).type(dtype).detach()
 
-		print("(img_pil.shape[2], img_pil.shape[1], img_pil.shape[0])", (img_pil.shape[2], img_pil.shape[1], img_pil.shape[0]))
+		print("(img_pil.shape[0], img_pil.shape[1], img_pil.shape[2])", (img_pil.shape[0], img_pil.shape[1], img_pil.shape[2]))
 		print("net_input.shape ", net_input.shape)
 		
 		
@@ -146,11 +144,6 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		# Loss
 		mse = torch.nn.MSELoss().type(dtype)
 		img_noisy_torch = np_to_torch(img_noisy_np).type(dtype)
-		print("img_noisy_torch.shape ", img_noisy_torch.shape)
-
-
-
-
 
 		################# OPTIMIZE ######################
 		global i, out_avg, psrn_noisy_last, last_net
@@ -178,7 +171,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				net_input = net_input_saved + (noise.normal_() * reg_noise_std)
 			
 			out = net(net_input)
-			
+			print(out.shape)
+			print(img_noisy_torch.shape)
+
 			# Smoothing
 			if out_avg is None:
 				out_avg = out.detach()
@@ -201,19 +196,13 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				print ('Iteration %05d    Loss %f   PSNR_noisy: %f   PSRN_gt: %f PSNR_gt_sm: %f' % (i, total_loss.item(), psrn_noisy, psrn_gt, psrn_gt_sm), '\n', flush=True)
 			if  PLOT and i % show_every == 0:
 				out_np = torch_to_np(out)
-				out_np = out_np.transpose(0,3,2,1)
+				# out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor/255
-				# out_np = out_np.reshape(n_x* n_y * n_z)	
-				# pd.DataFrame().to_csv("3D_"+str(target)+".csv", header=None, index=None)
 				print(out_np.shape)
-				#plt.imshow(out_np[:,:,10])
-				#plt.savefig("images/3D_"+str(i)+"_test_4.pdf")
-				#plot_image_grid([np.clip(out_np, 0, 1), 
-			    #                 np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="original_paper_images/steps"+str(i)+".pdf")
 			if i % 1000 == 0:
 				out_np = torch_to_np(out)
-				out_np = out_np.transpose(0,3,2,1)
+				# out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor
 				
@@ -226,8 +215,8 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 					print('Falling back to previous checkpoint.')
 
 					for new_param, net_param in zip(last_net, net.parameters()):
-						net_param.data.copy_(new_param.cuda())
-						## net_param.data.copy_(new_param.cpu()) for CPU
+						# net_param.data.copy_(new_param.cuda())
+						net_param.data.copy_(new_param.cpu()) ## for CPU
 
 					return total_loss*0
 				else:
