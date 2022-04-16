@@ -99,16 +99,10 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		img_noisy_np[0:n_x,0:n_y,0:n_z] = act_image
 		img_noisy_np = img_noisy_np.astype(np.float32) / 255.
 
-		#img_noisy_np = pil_to_np(img_noisy_pil)
-		# print("img_noisy_np.shape 1", img_noisy_np.shape)
 		img_noisy_np = img_noisy_np[None, :]	## Added
-		# print("img_noisy_np.shape 2", img_noisy_np.shape)
 
 		# As we don't have ground truth
-		# img_pil = img_noisy_pil
 		img_np = img_noisy_np
-
-		# print("img_noisy_np.shape 3", img_noisy_np.shape)
 
 
 		############### SETUP: #######################
@@ -139,10 +133,6 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 		net = net.type(dtype)
 		net_input = get_noise(input_depth, INPUT, img_noisy_np.shape).type(dtype).detach()
-
-		# print("img_noisy_np.shape 4", img_noisy_np.shape)
-		# print("net_input.shape ", net_input.shape)
-		
 		
 		# Compute number of parameters
 		s  = sum([np.prod(list(p.size())) for p in net.parameters()]);
@@ -204,16 +194,13 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				print ('Iteration %05d    Loss %f   PSNR_noisy: %f   PSRN_gt: %f PSNR_gt_sm: %f' % (i, total_loss.item(), psrn_noisy, psrn_gt, psrn_gt_sm), '\n', flush=True)
 			if  PLOT and i % show_every == 0:
 				out_np = torch_to_np(out)
-				# out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor/255
 				print(out_np.shape)
 			if i % 1000 == 0:
 				out_np = torch_to_np(out)
-				# out_np = out_np.transpose(0,3,2,1)
 				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
 				out_np = out_np*scaling_factor
-				
 				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
 			
 			
@@ -248,21 +235,15 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 		out_np = torch_to_np(net(net_input))
 
-		print("shape is:", out_np.shape)
-		# out_np = out_np.transpose(0,3,2,1)
-		print("shape is:", out_np.shape)
+		if DEBUG:
+			print("shape is:", out_np.shape)
 		out_np = out_np[0, 0:n_x, 0:n_y, 0:n_z]
-		print("shape is:", out_np.shape)
+		if DEBUG:
+			print("shape is:", out_np.shape)
 		out_np = out_np*scaling_factor   ## /255
-
-
-		#print("\ndat_target_orig: ", pd.DataFrame(dat_target_orig.reshape(n_x * n_y * n_z)).describe(), "\ndat_target: ", pd.DataFrame(dat_target.reshape(256* 256*20)).describe(), "\nout_np: ", pd.DataFrame(out_np.reshape(256* 256*20)).describe())
 
 		plt.imshow(out_np[:,:,10])
 		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
-		# out_np_rotated = out_np.transpose(2, 1, 0)   # add transpose 
-		# pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)		
-		# W_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
 
 		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)		
 		W_out[:,target] = out_np.reshape(n_x * n_y * n_z)

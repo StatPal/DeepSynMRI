@@ -96,6 +96,9 @@ plt.imsave("tmp.pdf", dat_2[:,:,18,1])
 # # dat_2 = dat_iter.reshape(n_z, n_y, n_x, 3)
 # # plt.imsave("tmp.pdf", dat_2[:,:,18,1])
 
+
+
+
 ### DL from parametric maps
 from W_DL import DL_W
 
