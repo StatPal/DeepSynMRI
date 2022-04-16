@@ -33,6 +33,8 @@ sigma_ = sigma/255.
 
 
 
+DEBUG = 0
+
 
 
 ############## LOAD IMAGE: ############################
@@ -58,7 +60,6 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 	dat_iter = W
 	dat_2 = dat_iter.reshape(n_x, n_y, n_z, 3)
-	# dat_2 = dat_2.transpose(1, 2, 0, 3)
 	W_out = np.copy(W)
 	print(dat_2.shape)	
 
@@ -91,17 +92,23 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		else:
 			tmp_3 = new_shape[2]
 		new_shape = (tmp_1, tmp_2, tmp_3)
-		print("padded shape: ", new_shape)
+		if DEBUG:
+			print("padded shape: ", new_shape)
 
-		img_noisy_pil = np.zeros(new_shape)
-		img_noisy_pil[0:n_x,0:n_y,0:n_z] = act_image
+		img_noisy_np = np.zeros(new_shape)
+		img_noisy_np[0:n_x,0:n_y,0:n_z] = act_image
+		img_noisy_np = img_noisy_np.astype(np.float32) / 255.
 
-		img_noisy_np = pil_to_np(img_noisy_pil)
+		#img_noisy_np = pil_to_np(img_noisy_pil)
+		# print("img_noisy_np.shape 1", img_noisy_np.shape)
 		img_noisy_np = img_noisy_np[None, :]	## Added
+		# print("img_noisy_np.shape 2", img_noisy_np.shape)
 
 		# As we don't have ground truth
-		img_pil = img_noisy_pil
+		# img_pil = img_noisy_pil
 		img_np = img_noisy_np
+
+		# print("img_noisy_np.shape 3", img_noisy_np.shape)
 
 
 		############### SETUP: #######################
@@ -131,10 +138,10 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
 
 		net = net.type(dtype)
-		net_input = get_noise(input_depth, INPUT, (img_pil.shape[0], img_pil.shape[1], img_pil.shape[2])).type(dtype).detach()
+		net_input = get_noise(input_depth, INPUT, img_noisy_np.shape).type(dtype).detach()
 
-		print("(img_pil.shape[0], img_pil.shape[1], img_pil.shape[2])", (img_pil.shape[0], img_pil.shape[1], img_pil.shape[2]))
-		print("net_input.shape ", net_input.shape)
+		# print("img_noisy_np.shape 4", img_noisy_np.shape)
+		# print("net_input.shape ", net_input.shape)
 		
 		
 		# Compute number of parameters
@@ -171,8 +178,9 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 				net_input = net_input_saved + (noise.normal_() * reg_noise_std)
 			
 			out = net(net_input)
-			print(out.shape)
-			print(img_noisy_torch.shape)
+			if DEBUG:
+				print(out.shape)
+				print(img_noisy_torch.shape)
 
 			# Smoothing
 			if out_avg is None:
@@ -241,7 +249,7 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 		out_np = torch_to_np(net(net_input))
 
 		print("shape is:", out_np.shape)
-		out_np = out_np.transpose(0,3,2,1)
+		# out_np = out_np.transpose(0,3,2,1)
 		print("shape is:", out_np.shape)
 		out_np = out_np[0, 0:n_x, 0:n_y, 0:n_z]
 		print("shape is:", out_np.shape)
@@ -252,10 +260,12 @@ def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
 
 		plt.imshow(out_np[:,:,10])
 		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
-		out_np_rotated = out_np.transpose(2, 1, 0)   # add transpose 
-		pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)
-		
-		W_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
+		# out_np_rotated = out_np.transpose(2, 1, 0)   # add transpose 
+		# pd.DataFrame(out_np_rotated.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)		
+		# W_out[:,target] = out_np_rotated.reshape(n_x * n_y * n_z)
+
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)		
+		W_out[:,target] = out_np.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
 	return W_out

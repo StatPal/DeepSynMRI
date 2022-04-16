@@ -99,7 +99,12 @@ plt.imsave("tmp.pdf", dat_2[:,:,18,1])
 ### DL from parametric maps
 from W_DL import DL_W
 
-num_iter = 50
+num_iter = 4
 W_DL_LS = DL_W(train, [36, 217, 181, 3], [1, 2, 0, 3], 181, 217, 36, num_iter)
 
+pd.DataFrame(W_DL_LS).to_csv("intermed/W_DL_LS.csv.gz", header=None, index=None)
 
+print(W_DL_LS.shape)
+
+dat_2 = W_DL_LS.reshape(n_x, n_y, n_z, 3)
+plt.imsave("tmp.pdf", dat_2[:,:,18,1])

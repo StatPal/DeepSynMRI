@@ -140,7 +140,8 @@ def get_noise(input_depth, method, spatial_size, noise_type='u', var=1./10):
     if isinstance(spatial_size, int):
         spatial_size = (spatial_size, spatial_size)
     if method == 'noise':
-        shape = [1, input_depth, spatial_size[0], spatial_size[1], spatial_size[2]]
+        shape = [1, input_depth, spatial_size[1], spatial_size[2], spatial_size[3]]   ## Subrata, addition for 3D
+        # shape = [1, input_depth, spatial_size[0], spatial_size[1], spatial_size[2]]
         net_input = torch.zeros(shape)
         
         fill_noise(net_input, noise_type)
