@@ -27,7 +27,15 @@ def Bloch_i(i, W, TE_vec, TR_vec, angle=90):
 
 def predict_image(W, TE_vec, TR_vec, angle=90):
     n, k = W.shape
+    tmp = np.zeros([n, TE_vec.shape])
+    for i in range(n):
+        tmp[i, :] = Bloch_i(i, W, TE_vec, TR_vec, angle)
+    return (np.asarray(tmp))
+
+
+def predict_image_par(W, TE_vec, TR_vec, angle=90):
+    n, k = W.shape
     pred = Parallel(n_jobs=2)(
             delayed(Bloch_i)(i, W, TE_vec, TR_vec, angle) for i in range(n))
-    return pred
+    return (np.asarray(pred))
 

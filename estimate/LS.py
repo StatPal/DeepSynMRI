@@ -6,15 +6,16 @@ debug = 0;
 
 from math import exp, log
 
-
-def obj_fn(W_i, TE_vec, TR_vec, train_i):
-    pred = Bloch(W_i, TE_vec, TR_vec)
+## Fixed angle for all train images for now
+def obj_fn(W_i, TE_vec, TR_vec, train_i, angle=90):
+    pred = Bloch(W_i, TE_vec, TR_vec, angle)
     return sum((pred - train_i)**2)
 
 if debug:
-    print(obj_fn(W_i, TE_vals, TR_vals, train_im))
+    print(obj_fn(W_i, TE_vals, TR_vals, train_im, 15))
     print(train_im.shape)
 
+## Not using grad now - Later include angle 
 def grad_fn(W_i, TE_vec, TR_vec, train_i):
     grad = np.zeros(3);
     pred = Bloch(W_i, TE_vec, TR_vec)
@@ -82,16 +83,16 @@ def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
 
 from joblib import Parallel, delayed
 
-def LS_est_i(i, TE_vec, TR_vec, train_mat, x0, bnds):
+def LS_est_i(i, TE_vec, TR_vec, angle, train_mat, x0, bnds):
     if i % 10000 == 0:
         print(i)
-    additional = (TE_vec, TR_vec, train_mat[i])
+    additional = (TE_vec, TR_vec, train_mat[i], angle)
     x0[0] = np.mean(train_mat[i])
     abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
     return abc.x
 
 
-def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
+def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, angle=90):
     bnds = ((0.0001, 450), (exp(-1/(0.01*TR_scale)), exp(-1/(4*TR_scale))), (exp(-1/(0.001*TE_scale)), exp(-1/(0.2*TE_scale))))
     x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
 
@@ -100,7 +101,7 @@ def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
     W = np.empty(shape=[n, 3])
     
     W = Parallel(n_jobs=2)(
-            delayed(LS_est_i)(i, TE_vec, TR_vec, train_mat, x0, bnds) for i in range(n))
+            delayed(LS_est_i)(i, TE_vec, TR_vec, angle, train_mat, x0, bnds) for i in range(n))
     return W
 
 
