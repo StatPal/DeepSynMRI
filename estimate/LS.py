@@ -77,7 +77,7 @@ def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, mask, angle=90):
             #print(abc)
             W[i,] = abc.x
         else:
-            W[i,] = np.zeros([3,1])
+            W[i,] = np.zeros([3,])
     return W
 
 
@@ -94,7 +94,7 @@ def LS_est_i(i, TE_vec, TR_vec, mask, angle, train_mat, x0, bnds):
         abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
         return abc.x
     else:
-        return np.zeros([3,1])  ## Make it different?
+        return np.zeros([3,])  ## Make it different?
 
 
 def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, mask, angle=90):
