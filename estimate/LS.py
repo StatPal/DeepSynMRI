@@ -59,7 +59,7 @@ if debug:
 
 
 
-def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
+def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, mask, angle=90):
     bnds = ((0.0001, 450), (exp(-1/(0.01*TR_scale)), exp(-1/(4*TR_scale))), (exp(-1/(0.001*TE_scale)), exp(-1/(0.2*TE_scale))))
     print(bnds)
     x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
@@ -70,12 +70,14 @@ def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
     for i in range(n):
         if i % 10000 == 0:
             print(i)
-        additional = (TE_vec, TR_vec, train_mat[i])
-        x0[0] = np.mean(train_mat[i])
-        abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
-        #print(abc)
-        W[i,] = abc.x
-    
+        if mask[i] == 0:
+            additional = (TE_vec, TR_vec, train_mat[i], angle)
+            x0[0] = np.mean(train_mat[i])
+            abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
+            #print(abc)
+            W[i,] = abc.x
+        else:
+            W[i,] = np.zeros([3,1])
     return W
 
 
@@ -83,16 +85,19 @@ def LS_est(TE_vec, TR_vec, train_mat, TE_scale, TR_scale):
 
 from joblib import Parallel, delayed
 
-def LS_est_i(i, TE_vec, TR_vec, angle, train_mat, x0, bnds):
+def LS_est_i(i, TE_vec, TR_vec, mask, angle, train_mat, x0, bnds):
     if i % 10000 == 0:
         print(i)
-    additional = (TE_vec, TR_vec, train_mat[i], angle)
-    x0[0] = np.mean(train_mat[i])
-    abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
-    return abc.x
+    if mask[i] == 0:
+        additional = (TE_vec, TR_vec, train_mat[i], angle)
+        x0[0] = np.mean(train_mat[i])
+        abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
+        return abc.x
+    else:
+        return np.zeros([3,1])  ## Make it different?
 
 
-def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, angle=90):
+def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, mask, angle=90):
     bnds = ((0.0001, 450), (exp(-1/(0.01*TR_scale)), exp(-1/(4*TR_scale))), (exp(-1/(0.001*TE_scale)), exp(-1/(0.2*TE_scale))))
     x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
 
@@ -101,7 +106,7 @@ def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, angle=90):
     W = np.empty(shape=[n, 3])
     
     W = Parallel(n_jobs=2)(
-            delayed(LS_est_i)(i, TE_vec, TR_vec, angle, train_mat, x0, bnds) for i in range(n))
+            delayed(LS_est_i)(i, TE_vec, TR_vec, mask, angle, train_mat, x0, bnds) for i in range(n))
     return W
 
 

@@ -45,11 +45,10 @@ for i in range(2):
     image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
 
 for i in range(8):
-    img = nib.load('../data/test-noise-0-check/brainweb_'+str(i)+'.mnc.gz')
+    img = nib.load('../data/FLASH-test-noise-0-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     image_vec[:, test_ind[i]] = data_reshaped.reshape(-1)
-
 
 np.mean(image_vec, axis=0)
 np.max(image_vec, axis=0)
@@ -103,11 +102,11 @@ np.array_equal(train, dat_2.reshape((-1,3)))
 from estimate.Bloch import *
 from estimate.LS import *
 
-# print(datetime.datetime.now(), flush=True)
-# W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale)
-# pd.DataFrame(W_LS_par).to_csv("intermed/FLASH-W_LS_par.csv", header=None, index=None)
+print(datetime.datetime.now(), flush=True)
+W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale, mask_vec, 15)  ## BUG - angle was not specified - spotted
+pd.DataFrame(W_LS_par).to_csv("intermed/FLASH-W_LS_par-INU-00.csv", header=None, index=None)
 print(datetime.datetime.now(), flush=True)                  ## Takes about 18 min in my laptop
-W_LS_par = pd.read_csv("intermed/FLASH-W_LS_par.csv", header=None).to_numpy()
+W_LS_par = pd.read_csv("intermed/FLASH-W_LS_par-INU-00.csv", header=None).to_numpy()
 
 
 dat_2 = W_LS_par.reshape(n_x, n_y, n_z, 3)
@@ -117,7 +116,7 @@ plt.imsave("tmp.pdf", dat_2[:,:,18, 1])
 
 
 ## Predict
-LS_pred_old  = predict_image_par(W_LS_par, TE_test, TR_test)
+LS_pred_old  = predict_image_par(W_LS_par, TE_test, TR_test, 15)  ## BUG 2: There would be angle too
 LS_pred = np.asarray(LS_pred_old)
 
 dat_2 = LS_pred.reshape(n_x, n_y, n_z, 9)
