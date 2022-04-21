@@ -1,5 +1,5 @@
 ## Training flash images - test images - do later
-# all angle 15
+# all angle 90
 
 import os
 import numpy as np
@@ -21,7 +21,8 @@ mask = (mask_all == 0)
 
 mask_reshaped_mid = mask.transpose([2,1,0])
 # mask_reshaped = mask_reshaped_mid[1::2, 1::2, 1::10]
-mask_reshaped = mask_reshaped_mid[1::2, 1::2, 9::10]   ## Here 4-5 would be a better option
+# mask_reshaped = mask_reshaped_mid[1::2, 1::2, 9::10]   ## Here 4-5 would be a better option
+mask_reshaped = mask_reshaped_mid[1::2, 1::2, 5::10]
 mask_reshaped.shape   # Matches R size
 mask_vec = mask_reshaped.reshape((-1,1))
 
