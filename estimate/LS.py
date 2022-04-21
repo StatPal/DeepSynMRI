@@ -102,7 +102,7 @@ def LS_est_par(TE_vec, TR_vec, train_mat, TE_scale, TR_scale, mask, angle=90):
     x0 = np.array([np.mean(train_mat[0]), exp(-1/(2*TR_scale)), exp(-1/(0.1*TE_scale))])
 
     n, m = train_mat.shape
-    print(n)
+    # print(n)
     W = np.empty(shape=[n, 3])
     
     W = Parallel(n_jobs=2)(

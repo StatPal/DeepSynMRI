@@ -26,8 +26,8 @@ def Bloch_i(i, W, TE_vec, TR_vec, angle=90):
     return (W[i, 0] * (1 - W[i, 1]**TR_vec) * sin(radians(angle)) * W[i, 2]**TE_vec / (1 - cos(radians(angle)) * W[i, 1]**TR_vec) )
 
 def predict_image(W, TE_vec, TR_vec, angle=90):
-    n, k = W.shape
-    tmp = np.zeros([n, TE_vec.shape])
+    [n, k] = W.shape
+    tmp = np.zeros([n, TE_vec.shape[0]])
     for i in range(n):
         tmp[i, :] = Bloch_i(i, W, TE_vec, TR_vec, angle)
     return (np.asarray(tmp))
