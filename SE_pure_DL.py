@@ -35,7 +35,7 @@ image_vec = np.ones([181*217*36, 12])
 train_ind = [0, 8, 9]
 test_ind = np.setdiff1d(range(12), train_ind)
 
-for i in range(2):
+for i in range(3):
     data = pd.read_csv('../whole_new/LS_with_deep_slices/3D/intermed/train_noisy-5-INU-00.csv.gzintermed_'+str(i)+'_noisy_train-seed-1.csv.gz', header=None).to_numpy()
     data_2 = data[:,0].reshape(n_z, n_y, n_x)
     data_reshaped = data_2.transpose([2,1,0])
@@ -44,7 +44,7 @@ for i in range(2):
 dat_2 = image_vec.reshape(n_x, n_y, n_z, 12)
 plt.imsave("tmp-DL.pdf", dat_2[:,:,18, 0])
 
-for i in range(8):
+for i in range(9):
     img = nib.load('../data/test-noise-0-check/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
