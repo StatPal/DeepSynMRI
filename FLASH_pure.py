@@ -8,6 +8,7 @@ import pandas as pd
 import datetime
 from matplotlib import pyplot as plt
 
+np.set_printoptions(precision=6, suppress=True)
 
 print(datetime.datetime.now(), flush=True)
 
@@ -21,7 +22,8 @@ mask = (mask_all == 0)
 
 mask_reshaped_mid = mask.transpose([2,1,0])
 # mask_reshaped = mask_reshaped_mid[1::2, 1::2, 1::10]
-mask_reshaped = mask_reshaped_mid[1::2, 1::2, 9::10]   ## Here 4-5 would be a better option
+# mask_reshaped = mask_reshaped_mid[1::2, 1::2, 9::10]   ## Here 4-5 would be a better option
+mask_reshaped = mask_reshaped_mid[1::2, 1::2, 5::10]
 mask_reshaped.shape   # Matches R size
 mask_vec = mask_reshaped.reshape((-1,1))
 
@@ -30,7 +32,7 @@ mask_vec = mask_reshaped.reshape((-1,1))
 
 n_x = 181; n_y = 217; n_z = 36
 dat_2 = mask_reshaped.reshape(n_x, n_y, n_z)
-plt.imsave("tmp.pdf", dat_2[:,:,18])
+plt.imsave("tmp.pdf", dat_2[:,:,10])
 
 
 
@@ -38,24 +40,24 @@ image_vec = np.ones([181*217*36, 12])
 train_ind = [0, 8, 9]
 test_ind = np.setdiff1d(range(12), train_ind)
 
-for i in range(2):
+for i in range(3):     ## BUG - was range(2)
     img = nib.load('../data/FLASH-noise-5-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
 
-for i in range(8):
+for i in range(9):   ## BUG - was range(8)
     img = nib.load('../data/FLASH-test-noise-0-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     image_vec[:, test_ind[i]] = data_reshaped.reshape(-1)
 
-np.mean(image_vec, axis=0)
-np.max(image_vec, axis=0)
+print(np.mean(image_vec, axis=0))
+print(np.max(image_vec, axis=0))
 
 
-scale_value = 400 / np.max(image_vec[:,range(12)]);
-image_vec = image_vec * 400 / np.max(image_vec[:,range(12)])
+scale_value = 400 / np.max(image_vec);
+image_vec = image_vec * 400 / np.max(image_vec)
 n, m = image_vec.shape
 
 
@@ -89,7 +91,7 @@ TR_test = TR_values[test_ind]
 
 
 dat_2 = train.reshape(n_x, n_y, n_z, 3)
-plt.imsave("tmp.pdf", dat_2[:,:,18, 1])
+plt.imsave("tmp.pdf", dat_2[:,:,10, 1])
 # Check:
 dat_2.reshape((-1,3)).shape
 train.shape
@@ -110,7 +112,7 @@ W_LS_par = pd.read_csv("intermed/FLASH-W_LS_par-INU-00.csv", header=None).to_num
 
 
 dat_2 = W_LS_par.reshape(n_x, n_y, n_z, 3)
-plt.imsave("tmp.pdf", dat_2[:,:,18, 1])
+plt.imsave("tmp.pdf", dat_2[:,:,10, 1])
 
 
 
@@ -120,7 +122,7 @@ LS_pred_old  = predict_image_par(W_LS_par, TE_test, TR_test, 15)  ## BUG 2: Ther
 LS_pred = np.asarray(LS_pred_old)
 
 dat_2 = LS_pred.reshape(n_x, n_y, n_z, 9)
-plt.imsave("tmp.pdf", dat_2[:,:,18, 1])
+plt.imsave("tmp.pdf", dat_2[:,:,10, 1])
 
 
 
