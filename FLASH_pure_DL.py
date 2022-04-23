@@ -37,7 +37,7 @@ train_ind = [0, 8, 9]
 test_ind = np.setdiff1d(range(12), train_ind)
 
 for i in range(3):     ## BUG - was range(2)
-    img = nib.load('../data/noise-5-INU-20/brainweb_'+str(i)+'.mnc.gz')
+    img = nib.load('../data/FLASH-noise-5-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     print(train_ind[i])
@@ -68,6 +68,8 @@ for i in range(3):
     data_reshaped = data_2.transpose([2,1,0])
     image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
 
+print(np.mean(image_vec, axis=0))
+print(np.max(image_vec, axis=0))
 
 
 

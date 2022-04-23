@@ -41,7 +41,7 @@ train_ind = [0, 8, 9]
 test_ind = np.setdiff1d(range(12), train_ind)
 
 for i in range(3):     ## BUG - was range(2)
-    img = nib.load('../data/FLASH-noise-5-INU-00/brainweb_'+str(i)+'.mnc.gz')
+    img = nib.load('../data/FLASH-noise-5-INU-20/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
@@ -60,6 +60,8 @@ scale_value = 400 / np.max(image_vec);
 image_vec = image_vec * 400 / np.max(image_vec)
 n, m = image_vec.shape
 
+print(np.mean(image_vec, axis=0))
+print(np.max(image_vec, axis=0))
 
 
 ## Other input parameters:
@@ -106,9 +108,9 @@ from estimate.LS import *
 
 print(datetime.datetime.now(), flush=True)
 W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale, mask_vec, 15)  ## BUG - angle was not specified - spotted
-pd.DataFrame(W_LS_par).to_csv("intermed/FLASH-W_LS_par-INU-00.csv", header=None, index=None)
+pd.DataFrame(W_LS_par).to_csv("intermed/FLASH-W_LS_par-INU-20.csv", header=None, index=None)
 print(datetime.datetime.now(), flush=True)                  ## Takes about 18 min in my laptop
-W_LS_par = pd.read_csv("intermed/FLASH-W_LS_par-INU-00.csv", header=None).to_numpy()
+W_LS_par = pd.read_csv("intermed/FLASH-W_LS_par-INU-20.csv", header=None).to_numpy()
 
 
 dat_2 = W_LS_par.reshape(n_x, n_y, n_z, 3)
