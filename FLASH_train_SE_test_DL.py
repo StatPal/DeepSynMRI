@@ -36,6 +36,20 @@ image_vec = np.ones([181*217*36, 12])
 train_ind = [0, 8, 9]
 test_ind = np.setdiff1d(range(12), train_ind)
 
+
+data = pd.read_csv('../whole_new/LS_with_deep_slices/FLASH-train_noisy-5-INU-00.csv.gz', header=None).to_numpy()
+tmp = data[:,0].reshape(n_z, n_y, n_x).transpose([2,1,0]).reshape(-1)
+img = nib.load('../data/FLASH-noise-5-INU-00/brainweb_0.mnc.gz')
+data = img.get_fdata()
+tmp2 = data.transpose([2,1,0]).reshape(-1)
+train_scale_factor = np.max(tmp)/np.max(tmp2)
+print(train_scale_factor)  ## Needed for DL
+
+
+
+
+
+
 for i in range(3):     ## BUG - was range(2)
     img = nib.load('../data/FLASH-noise-5-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
@@ -47,19 +61,16 @@ dat_2 = image_vec.reshape(n_x, n_y, n_z, 12)
 plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 0])
 
 for i in range(9):
-    img = nib.load('../data/test-noise-0-check/brainweb_'+str(i)+'.mnc.gz')
+    img = nib.load('../data/test-noise-0-INU-00/brainweb_'+str(i)+'.mnc.gz')
     data = img.get_fdata()
     data_reshaped = data.transpose([2,1,0])
     image_vec[:, test_ind[i]] = data_reshaped.reshape(-1)
 
-print(np.mean(image_vec, axis=0))
 print(np.max(image_vec, axis=0))
 
-
-scale_value = 400 / np.max(image_vec[:,range(12)]);
-image_vec = image_vec * 400 / np.max(image_vec[:,range(12)])
+image_vec = image_vec * train_scale_factor
 n, m = image_vec.shape
-
+print(np.max(image_vec, axis=0))
 
 ## DL images: 
 for i in range(3):
@@ -67,6 +78,8 @@ for i in range(3):
     data_2 = data[:,0].reshape(n_z, n_y, n_x)
     data_reshaped = data_2.transpose([2,1,0])
     image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
+
+print(np.max(image_vec, axis=0))
 
 
 
