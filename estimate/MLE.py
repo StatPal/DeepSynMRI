@@ -1,17 +1,20 @@
 import numpy as np
+from estimate.Bloch import *
+# from Bloch import *
 
+debug = 0
 
 if debug:
     TE_vals = np.array([0.5, 0.4, 0.45])
     TR_vals = np.array([0.3, 0.35, 0.25])
-    # print(Bloch(np.array([1.4, 0.2, 0.5]), 0.5, 0.3))
-    # print(Bloch(np.array([1.4, 0.2, 0.5]), 0.4, 0.35))
-    # print(Bloch(np.array([1.4, 0.2, 0.5]), TE_vals, TR_vals))
+    # print(Bloch(np.array([1.4, 0.2, 0.005]), 0.5, 0.3))
+    # print(Bloch(np.array([1.4, 0.4, 0.005]), 0.4, 0.35))
+    print(Bloch(np.array([145.4, 0.2, 0.005]), TE_vals, TR_vals))
 
     # i = 1
     train_im = np.array([200, 120.5, 150.4])
     W_i = np.array([120.4, 0.2, 0.5])
-    # print( sum( (Bloch(np.array([1.4, 0.2, 0.5]), TE_vals, TR_vals) - train_im) ** 2) )
+    print( sum( (Bloch(np.array([1.4, 0.2, 0.5]), TE_vals, TR_vals) - train_im) ** 2) )
     sigma_train = np.array([1.3, 1.1, 1.5])
 
 
@@ -29,7 +32,12 @@ def obj_fn(W_i, TE_vec, TR_vec, train_i, sigma):
         tmp1 = log(i0e(tmp2*pred[j])) + (tmp2*pred[j]);   ## i0e(x) = exp(-abs(x)) * i0(x)  =>  log(i0e(x)) = -abs(x) + log(i0(x))
         likeli_sum = likeli_sum + (log(tmp2) + tmp1 - 0.5*tmp3);
     
-    return likeli_sum
+    return (-likeli_sum)     
+
+## There was a BUG - no minus sign in likelihood (negative log likelihood) - CHECK TODO
+
+
+
 
 if debug:
     print(obj_fn(W_i, TE_vals, TR_vals, train_im, sigma_train))
@@ -41,7 +49,8 @@ from scipy.optimize import minimize
 
 if debug:
     x0 = W_i
-    bnds = ((0, 450), (0, 1), (0, 1))
+    # bnds = ((0, 450), (0, 1), (0, 1))
+    bnds = ((0, 450), (1e-16, 0.77), (0, 0.006))
     additional = (TE_vals, TR_vals, train_im, sigma_train)
     abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
     print(abc)
@@ -74,6 +83,8 @@ def MLE_est(W_init, TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train, 
 from joblib import Parallel, delayed
 
 def MLE_est_i(i, W_init, TE_vec, TR_vec, train_mat, bnds, sigma_train, mask):
+    if i % 10000 == 0:
+        print(i)
     if mask[i] == 0:
         additional = (TE_vec, TR_vec, train_mat[i], sigma_train)
         x0 = W_init[i]

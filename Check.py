@@ -44,7 +44,7 @@ print( LS_est(TE_vals, TR_vals, train_im, 1, 1, mask_vec, angle=90) )
 
 print('\n\n\n Many voxels\n\n')
 
-W = np.array([[50, 0.01, 0.003], [36, 0.02, 0.04], [56, 0.02, 0.04], [106, 0.2, 0.04]])
+W = np.array([[50, 0.01, 0.003], [36, 0.02, 0.004], [56, 0.02, 0.04], [106, 0.2, 0.004], [106, 0.2, 0.001], [106, 0.1, 0.002]])
 # W = np.array([[50, 0.01, 0.003], [36, 0.02, 0.04]])
 TE = np.array([0.01, 0.03, 0.04, 0.01])
 TR = np.array([0.6, 0.6, 1, 0.8])
@@ -61,8 +61,8 @@ print( predict_image_par(W, TE, TR))  ## Same
 ## Now check more voxels:
 train_new = predict_image(W, TE, TR)
 
-sigma_val = np.array([0,0,0,0])
-mask_vec = np.array([0,0,0,0])
+sigma_val = np.array([0,0,0,0,0,0])
+mask_vec = np.array([0,0,0,0,0,0])
 est_W = np.asarray( LS_est_par(TE, TR, train_new, 1, 1, mask_vec, angle=90) )
 
 print(est_W)
@@ -72,5 +72,25 @@ print(est_W)
 
 print( predict_image(est_W, TE, TR) )
 
-print('\n\n\n Measure\n\n')
+print('\n\nMeasure\n')
 print(   np.mean( abs( predict_image(est_W, TE, TR) - train_new) , axis=1)  )
+
+
+### GOT IT - it goes outside the bounds
+### TODO GIve values inside the bound
+
+
+
+
+print('\n\n\n\n MLE \n\n\n')
+from estimate.MLE import *
+
+sigma_val = np.array([1,1,1,1,1,1]) * 0.01
+est_W = np.asarray( MLE_est_par(est_W, TE, TR, train_new, 1, 1, sigma_val, mask_vec) )
+print(est_W)
+## Predict again from estimated:
+print( predict_image(est_W, TE, TR) )
+
+print('\n\nMeasure\n')
+print(   np.mean( abs( predict_image(est_W, TE, TR) - train_new) , axis=1)  )
+
