@@ -5,17 +5,18 @@ from estimate.Bloch import *
 debug = 0
 
 if debug:
-    TE_vals = np.array([0.5, 0.4, 0.45])
-    TR_vals = np.array([0.3, 0.35, 0.25])
-    # print(Bloch(np.array([1.4, 0.2, 0.005]), 0.5, 0.3))
+    np.set_printoptions(precision=6, suppress=True)
+    TE_vals = np.array([0.01, 0.03, 0.04, 0.01])
+    TR_vals = np.array([0.6, 0.6, 1, 0.8])
     # print(Bloch(np.array([1.4, 0.4, 0.005]), 0.4, 0.35))
-    print(Bloch(np.array([145.4, 0.2, 0.005]), TE_vals, TR_vals))
+    # print(Bloch(np.array([145.4, 0.2, 0.005]), TE_vals, TR_vals))
 
     # i = 1
-    train_im = np.array([200, 120.5, 150.4])
-    W_i = np.array([120.4, 0.2, 0.5])
-    print( sum( (Bloch(np.array([1.4, 0.2, 0.5]), TE_vals, TR_vals) - train_im) ** 2) )
-    sigma_train = np.array([1.3, 1.1, 1.5])
+    train_im = np.array([62.116354, 55.622071, 67.995199, 72.626893])
+    # W_i = np.array([106.0 , 0.2, 0.004])  ## Best LS value
+    W_i = np.array([56.0 , 0.1, 0.001])
+    # print( sum( (Bloch(W_i, TE_vals, TR_vals) - train_im) ** 2) )
+    sigma_train = np.array([1.3, 1.1, 1.5, 1.1])
 
 
 from math import exp, log
@@ -29,8 +30,8 @@ def obj_fn(W_i, TE_vec, TR_vec, train_i, sigma):
         tmp2 = train_i[j]/(sigma[j] ** 2)
         tmp3 = (train_i[j] ** 2 + pred[j] ** 2)/(2 * (sigma[j] ** 2))
         # tmp1 = log(i0(tmp2*pred[j]));  ## Possibly creating bugs
-        tmp1 = log(i0e(tmp2*pred[j])) + (tmp2*pred[j]);   ## i0e(x) = exp(-abs(x)) * i0(x)  =>  log(i0e(x)) = -abs(x) + log(i0(x))
-        likeli_sum = likeli_sum + (log(tmp2) + tmp1 - 0.5*tmp3);
+        tmp1 = log(i0e(tmp2*pred[j])) + abs(tmp2*pred[j]);   ## i0e(x) = exp(-abs(x)) * i0(x)  =>  log(i0e(x)) = -abs(x) + log(i0(x))
+        likeli_sum = likeli_sum + (log(tmp2) + tmp1 - tmp3);   ## BUG - there is already a half here, also, abs() was not included before (Though it's obvious)
     
     return (-likeli_sum)     
 
@@ -40,8 +41,10 @@ def obj_fn(W_i, TE_vec, TR_vec, train_i, sigma):
 
 
 if debug:
+    print('\n\nFirst value\n')
+    print(W_i)
     print(obj_fn(W_i, TE_vals, TR_vals, train_im, sigma_train))
-    print(train_im.shape)
+    # print(train_im.shape)
 
 
 
@@ -53,8 +56,12 @@ if debug:
     bnds = ((0, 450), (1e-16, 0.77), (0, 0.006))
     additional = (TE_vals, TR_vals, train_im, sigma_train)
     abc = minimize(obj_fn, x0, args=additional, method='L-BFGS-B', bounds = bnds)
-    print(abc)
+    # print(abc)
+    print('\nSecond value\n')
+    print(abc.x)
+    print('\nFirst obj fn value\n')
     print(obj_fn(x0, TE_vals, TR_vals, train_im, sigma_train))
+    print('\nSecond obj fn value\n')
     print(obj_fn(abc.x, TE_vals, TR_vals, train_im, sigma_train))
 
 
