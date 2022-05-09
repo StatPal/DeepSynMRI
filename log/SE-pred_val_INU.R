@@ -34,27 +34,56 @@ rm(INU)
 
 names(all_dat)[5:13] <- paste0('Test image ', 1:9)
 all_dat_old <- all_dat
-all_dat$DL <- ifelse(all_dat$DL, "DL", "No DL")
+# all_dat$DL <- ifelse(all_dat$DL, "DL", "No DL")
 
 
 ## Plots
 library(tidyverse)
 library(tidyr)
 library(ggplot2)
+library(xtable)
+
+tmp <- all_dat %>%
+  pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
+  filter(measures == "MAPE") %>% 
+  pivot_wider(names_from = img, values_from = vals) %>% 
+  select(-c(measures)) %>% 
+  arrange(method) %>%
+  arrange(INU) %>%
+  relocate(DL, .after=method) %>% 
+  mutate(DL = ifelse(DL, "DL", "")) %>% 
+  mutate(method = interaction(DL, method)) %>% 
+  select(-DL)
+
+print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
+
+tmp <- all_dat %>%
+  pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
+  filter(measures == "RMSPE") %>% 
+  pivot_wider(names_from = img, values_from = vals) %>% 
+  select(-c(measures)) %>% 
+  arrange(method) %>%
+  arrange(INU) %>%
+  relocate(DL, .after=method) %>% 
+  mutate(DL = ifelse(DL, "DL", "")) %>% 
+  mutate(method = interaction(DL, method)) %>% 
+  select(-DL)
+
+print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 
 tmp <- all_dat %>%
   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
   filter(measures == "SSIM") %>% 
   pivot_wider(names_from = img, values_from = vals) %>% 
+  select(-c(measures)) %>% 
   arrange(method) %>%
   arrange(INU) %>%
-  select(-c(measures)) %>% 
-  relocate(DL, .after=method)
+  relocate(DL, .after=method) %>% 
+  mutate(DL = ifelse(DL, "DL", "")) %>% 
+  mutate(method = interaction(DL, method)) %>% 
+  select(-DL)
 
-library(xtable)
-print(xtable(tmp, digits=c(1,1,0,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
-
-
+print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 
 
 

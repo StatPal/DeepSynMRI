@@ -74,7 +74,7 @@ library(ggplot2)
 
 tmp <- all_dat %>%
   pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") %>% 
-  filter(measures == "MAPE") %>% 
+  filter(measures == "SSIM") %>% 
   pivot_wider(names_from = img, values_from = vals) %>% 
   select(-c(measures)) %>% 
   arrange(method) %>%
@@ -243,7 +243,9 @@ leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") +
   labs(color  = "Noise %: ", linetype = "Noise %: ", shape = "Method: ") + 
   theme(legend.key.width = unit(2,"cm")) +
   guides(shape = FALSE, size="none",
-          linetype = guide_legend(override.aes = list(size = 2.0))))
+          linetype = guide_legend(override.aes = list(size = 2.0, shape=NA))))
+## https://stackoverflow.com/questions/48361948/remove-box-and-points-in-legend
+
 legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")
