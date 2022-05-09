@@ -96,12 +96,22 @@ names(all_dat)[5:13] <- paste0('Test image ', 1:9)
 
 
 
+library(stringr)
 
-tmp_dat <- all_dat %>%
+names(all_dat)[5:13] <- paste0('Test image ', 1:9)
+TE_TR <- c("15/0.6", "20/0.6", "10/1", "30/1", "40/1", "10/2", "40/2", "60/3", "100/3")
+TE_TR_names  <- paste0('TE(ms)/TR(s): ', TE_TR[1:9])
+
+
+tmp_dat_old <- all_dat %>%
   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
   filter(img == "Test image 1" | img == "Test image 2" | img == "Test image 6" | img == "Test image 8") %>% 
   mutate(method_old = method) %>%
   mutate(method = ifelse(DL, paste0("DL-", method), method )) 
+
+tmp_dat <- tmp_dat_old
+tmp_dat$img_vals  <-  TE_TR_names[as.numeric( str_split_fixed(tmp_dat_old$img, ' ', n=3)[,3] )]
+
 
 
 library(RColorBrewer)
@@ -115,7 +125,7 @@ p <- tmp_dat %>%
     geom_point(aes(color=factor(INU), size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
-    facet_grid(cols = vars(img)) +
+    facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
@@ -135,7 +145,7 @@ p <- tmp_dat %>%
     geom_point(aes(color=factor(INU), size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
-    facet_grid(cols = vars(img)) +
+    facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
@@ -156,7 +166,7 @@ p <- tmp_dat %>%
     geom_point(aes(color=factor(INU), size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
-    facet_grid(cols = vars(img)) +
+    facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
