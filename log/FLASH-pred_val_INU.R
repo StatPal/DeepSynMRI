@@ -81,36 +81,42 @@ my_cols <-  brewer.pal(5, 'Dark2')
 
 p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(aes(size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p1 <- p + labs( colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("MAPE")
+p1 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+  xlab('Method') + ylab("MAPE")
 p1
 ggsave('FLASH-MAPE.jpg')
 
 
 p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(aes(size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p2 <- p + labs( colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("RMSPE")
+p2 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+  xlab('Method') + ylab("RMSPE")
 p2
 ggsave('FLASH-RMSPE.jpg')
 
@@ -118,18 +124,21 @@ ggsave('FLASH-RMSPE.jpg')
 
 p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(aes(size=1)) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p3 <- p + labs(colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("SSIM")
+p3 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+   xlab('Method') + ylab("SSIM")
 p3
 ggsave('FLASH-SSIM.jpg')
 
@@ -153,12 +162,27 @@ p1_new / p2_new / p3_new
 ggsave('all-FLASH.png', scale=0.75)
 
 
-leg <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
-  labs(color  = "INU percentage: ", linetype = "INU percentage: ", shape = "Method: "))
-ggpubr::as_ggplot(leg) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+# leg <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
+#   labs(color  = "INU percentage: ", linetype = "INU percentage: ", shape = "Method: "))
+# ggpubr::as_ggplot(leg) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+#                                 plot.background = element_rect(fill = "white"), 
+#                                 legend.position="bottom")
+# ggsave('FLASH-Legend.png', scale=0.75)
+
+
+leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
+  labs(color  = "INU %: ", linetype = "INU %: ", shape = "Method: ") + 
+  theme(legend.key.width = unit(2,"cm")) +
+  guides(shape = FALSE, size="none"))
+legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")
-ggsave('FLASH-Legend.png', scale=0.75)
+ggsave('FLASH-Legend1.png', scale=1.0)
 
-
+leg2 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + labs(shape = "Method: ") +
+  guides(color = FALSE, linetype = FALSE, size="none"))
+legend2 <- ggpubr::as_ggplot(leg2) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"), 
+                                legend.position="bottom")
+ggsave('FLASH-Legend2.png', scale=1.0)
 

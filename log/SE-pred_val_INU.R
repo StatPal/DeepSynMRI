@@ -90,9 +90,11 @@ p <- tmp_dat %>%
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p1 <- p + labs( colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("MAPE")
+p1 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+  xlab('Method') + ylab("MAPE")
 p1
 ggsave('SE-INU-MAPE.jpg')
 
@@ -108,9 +110,11 @@ p <- tmp_dat %>%
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p2 <- p + labs( colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("RMSPE")
+p2 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+  xlab('Method') + ylab("RMSPE")
 p2
 ggsave('SE-INU-FLASH-RMSPE.jpg')
 
@@ -127,9 +131,11 @@ p <- tmp_dat %>%
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
-p3 <- p + labs(colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("SSIM")
+p3 <- p + 
+  guides(shape = guide_legend(override.aes = list(size = 5))) + 
+  guides(size = FALSE) + 
+  labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
+   xlab('Method') + ylab("SSIM")
 p3
 ggsave('SE-INU-FLASH-SSIM.jpg')
 
@@ -153,12 +159,21 @@ p1_new / p2_new / p3_new
 ggsave('all-SE-INU-.png', scale=0.75)
 
 
-leg <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
-  labs(color  = "INU percentage: ", linetype = "INU percentage: ", shape = "Method: "))
-ggpubr::as_ggplot(leg) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
+  labs(color  = "INU %: ", linetype = "INU %: ", shape = "Method: ") + 
+  theme(legend.key.width = unit(2,"cm")) +
+  guides(shape = FALSE, size="none"))
+legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")
-ggsave('SE-INU-Legend.png', scale=0.75)
+ggsave('SE-INU-Legend1.png', scale=1.0)
+
+leg2 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + labs(shape = "Method: ") +
+  guides(color = FALSE, linetype = FALSE, size="none"))
+legend2 <- ggpubr::as_ggplot(leg2) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"), 
+                                legend.position="bottom")
+ggsave('SE-INU-Legend2.png', scale=1.0)
 
 
 

@@ -7,6 +7,8 @@ plot(sort(rnorm(25)), pch=c("☺", "❤", "✌", "❄", "✈"))
 
 plot(sort(rnorm(25)), pch=c("❤", "♠", "♦", "♣"))
 
+new_styles <- -1*c(9824,9827,9829,9830)
+plot(, type="b", pch=new_styles)
 
 
 
@@ -237,12 +239,21 @@ ggsave('all-SE.png', scale=0.75)
 
 
 
-leg <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
-  labs(color  = "Noise percentage: ", linetype = "Noise percentage: ", shape = "Method: "))
-ggpubr::as_ggplot(leg) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
+  labs(color  = "Noise %: ", linetype = "Noise %: ", shape = "Method: ") + 
+  theme(legend.key.width = unit(2,"cm")) +
+  guides(shape = FALSE, size="none"))
+legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")
-ggsave('Legend.png', scale=0.75)
+ggsave('Legend1.png', scale=1.0)
+
+leg2 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + labs(shape = "Method: ") +
+  guides(color = FALSE, linetype = FALSE, size="none"))
+legend2 <- ggpubr::as_ggplot(leg2) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"), 
+                                legend.position="bottom")
+ggsave('Legend2.png', scale=1.0)
 
 
 
