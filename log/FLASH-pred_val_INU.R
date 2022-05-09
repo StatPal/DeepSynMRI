@@ -25,6 +25,7 @@ all_normal <- cbind(measures, INU, method, all_normal)
 all_DL     <- cbind(measures, INU, method, all_DL    )
 
 all_dat <- cbind(DL, rbind(all_normal, all_DL))
+all_dat$INU <- as.numeric(all_dat$INU)
 
 rm(DL)
 rm(measures)
@@ -173,7 +174,8 @@ ggsave('all-FLASH.png', scale=0.75)
 leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
   labs(color  = "INU %: ", linetype = "INU %: ", shape = "Method: ") + 
   theme(legend.key.width = unit(2,"cm")) +
-  guides(shape = FALSE, size="none"))
+  guides(shape = FALSE, size="none",
+        linetype = guide_legend(override.aes = list(size = 2.0, shape=NA))))
 legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")

@@ -8,7 +8,7 @@ plot(sort(rnorm(25)), pch=c("☺", "❤", "✌", "❄", "✈"))
 plot(sort(rnorm(25)), pch=c("❤", "♠", "♦", "♣"))
 
 new_styles <- -1*c(9824,9827,9829,9830)
-plot(, type="b", pch=new_styles)
+# plot(, type="b", pch=new_styles)
 
 
 
@@ -242,7 +242,8 @@ ggsave('all-SE.png', scale=0.75)
 leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
   labs(color  = "Noise %: ", linetype = "Noise %: ", shape = "Method: ") + 
   theme(legend.key.width = unit(2,"cm")) +
-  guides(shape = FALSE, size="none"))
+  guides(shape = FALSE, size="none",
+          linetype = guide_legend(override.aes = list(size = 2.0))))
 legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"), 
                                 legend.position="bottom")
@@ -269,20 +270,20 @@ ggsave('Legend2.png', scale=1.0)
 
 
 
-p <- tmp_dat %>%
-  ggplot(aes(x = interaction(method, DL), y = vals, group = errs, shape=interaction(method, DL))) +
-    geom_point(aes(color=factor(errs), size=3)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
-    scale_colour_manual(values=my_cols) + 
-    facet_grid(rows = vars(measures), cols = vars(img), scale='free_y') + 
-    geom_line(aes(linetype = factor(errs), color = factor(errs))) +
-    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-                                plot.background = element_rect(fill = "white"),
-                                strip.text.y = element_text(angle = 0)) + 
-  labs(colour = "Noise percentage", shape = "Method") + 
-  guides(linetype = FALSE, size="none") + 
-  guides(shape = guide_legend(override.aes = list(size = 5))) + 
-  xlab('Method') + ylab("SSIM")
+# p <- tmp_dat %>%
+#   ggplot(aes(x = interaction(method, DL), y = vals, group = errs, shape=interaction(method, DL))) +
+#     geom_point(aes(color=factor(errs), size=3)) + 
+#     scale_shape_manual(values = new_styles[1:4]) + 
+#     scale_colour_manual(values=my_cols) + 
+#     facet_grid(rows = vars(measures), cols = vars(img), scale='free_y') + 
+#     geom_line(aes(linetype = factor(errs), color = factor(errs))) +
+#     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+#                                 plot.background = element_rect(fill = "white"),
+#                                 strip.text.y = element_text(angle = 0)) + 
+#   labs(colour = "Noise percentage", shape = "Method") + 
+#   guides(linetype = FALSE, size="none") + 
+#   guides(shape = guide_legend(override.aes = list(size = 5))) + 
+#   xlab('Method') + ylab("SSIM")
 
 
 
@@ -290,16 +291,16 @@ p <- tmp_dat %>%
 
 
 
-tmp_dat %>%
-  ggplot(aes(x = interaction(method, DL), y = vals, group = errs, shape=interaction(method, DL))) +
-    geom_point(aes(color=factor(errs), size=3)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
-    scale_colour_manual(values=my_cols) + 
-    facet_wrap(~measures * img, strip.position = c("left")) + 
-    geom_line(aes(linetype = factor(errs), color = factor(errs))) +
-    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-                                plot.background = element_rect(fill = "white"),
-                                strip.text.y = element_text(angle = 0)) + 
-                                ylab(NULL) +
-     theme(strip.background = element_blank(),
-           strip.placement = "outside")
+# tmp_dat %>%
+#   ggplot(aes(x = interaction(method, DL), y = vals, group = errs, shape=interaction(method, DL))) +
+#     geom_point(aes(color=factor(errs), size=3)) + 
+#     scale_shape_manual(values = new_styles[1:4]) + 
+#     scale_colour_manual(values=my_cols) + 
+#     facet_wrap(~measures * img, strip.position = c("left")) + 
+#     geom_line(aes(linetype = factor(errs), color = factor(errs))) +
+#     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+#                                 plot.background = element_rect(fill = "white"),
+#                                 strip.text.y = element_text(angle = 0)) + 
+#                                 ylab(NULL) +
+#      theme(strip.background = element_blank(),
+#            strip.placement = "outside")
