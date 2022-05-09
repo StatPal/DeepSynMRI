@@ -94,7 +94,7 @@ p1 <- p + labs( colour = "Noise percentage", shape = "Method") +
   guides(linetype = FALSE, size="none") + 
   guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("MAPE")
 p1
-ggsave('MAPE.jpg')
+ggsave('FLASH-MAPE.jpg')
 
 
 p <- tmp_dat %>%
@@ -112,7 +112,7 @@ p2 <- p + labs( colour = "Noise percentage", shape = "Method") +
   guides(linetype = FALSE, size="none") + 
   guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("RMSPE")
 p2
-ggsave('RMSPE.jpg')
+ggsave('FLASH-RMSPE.jpg')
 
 
 
@@ -131,7 +131,7 @@ p3 <- p + labs(colour = "Noise percentage", shape = "Method") +
   guides(linetype = FALSE, size="none") + 
   guides(shape = guide_legend(override.aes = list(size = 5))) + xlab('Method') + ylab("SSIM")
 p3
-ggsave('SSIM.jpg')
+ggsave('FLASH-SSIM.jpg')
 
 
 library(patchwork)
@@ -151,4 +151,14 @@ p3_new <- p3 + theme(legend.position="none",
 p1_new / p2_new / p3_new
 
 ggsave('all-FLASH.png', scale=0.75)
+
+
+leg <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
+  labs(color  = "INU percentage: ", linetype = "INU percentage: ", shape = "Method: "))
+ggpubr::as_ggplot(leg) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"), 
+                                legend.position="bottom")
+ggsave('FLASH-Legend.png', scale=0.75)
+
+
 
