@@ -100,7 +100,7 @@ library(stringr)
 
 names(all_dat)[5:13] <- paste0('Test image ', 1:9)
 TE_TR <- c("15/0.6", "20/0.6", "10/1", "30/1", "40/1", "10/2", "40/2", "60/3", "100/3")
-TE_TR_names  <- paste0('TE(ms)/TR(s): ', TE_TR[1:9])
+TE_TR_names  <- paste0('TE/TR = ', TE_TR[1:9])
 
 
 tmp_dat_old <- all_dat %>%
