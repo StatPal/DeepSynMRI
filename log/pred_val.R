@@ -101,7 +101,7 @@ tmp_dat_old <- all_dat %>%
   pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") %>% 
   filter(img == "Test image 1" | img == "Test image 2" | img == "Test image 6" | img == "Test image 8") %>% 
   mutate(method_old = method) %>%
-  mutate(method = ifelse(DL, paste0("DL-", method), method )) 
+  mutate(method = ifelse(DL, paste0("DL+", method), method )) 
 
 tmp_dat <- tmp_dat_old
 tmp_dat$img_vals  <-  TE_TR_names[as.numeric( str_split_fixed(tmp_dat_old$img, ' ', n=3)[,3] )]
@@ -222,7 +222,7 @@ p3 <- p +
   guides(shape = guide_legend(override.aes = list(size = 5))) + 
   guides(size = FALSE) + 
   labs(color  = "Noise percentage", linetype = "Noise percentage", shape = "Method") + 
-  xlab('Method') + ylab("SSIM") 
+  xlab('\nMethod') + ylab("SSIM") 
 p3
 ggsave('SSIM.png')
 
@@ -239,7 +239,10 @@ p2_new <- p2 + theme(legend.position="none",
 p3_new <- p3 + theme(legend.position="none", 
               strip.background = element_blank(),
               strip.text.x = element_blank(), 
-              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
+              axis.title.y = element_text(margin = margin(t = 0, r = 0, b = 20, l = 0)))
+
+p3_new
 
 p1_new / p2_new / p3_new
 

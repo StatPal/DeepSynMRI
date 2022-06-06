@@ -107,7 +107,7 @@ tmp_dat_old <- all_dat %>%
   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
   filter(img == "Test image 1" | img == "Test image 2" | img == "Test image 6" | img == "Test image 8") %>% 
   mutate(method_old = method) %>%
-  mutate(method = ifelse(DL, paste0("DL-", method), method )) 
+  mutate(method = ifelse(DL, paste0("DL+", method), method )) 
 
 tmp_dat <- tmp_dat_old
 tmp_dat$img_vals  <-  TE_TR_names[as.numeric( str_split_fixed(tmp_dat_old$img, ' ', n=3)[,3] )]
@@ -175,7 +175,7 @@ p3 <- p +
   guides(shape = guide_legend(override.aes = list(size = 5))) + 
   guides(size = FALSE) + 
   labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
-   xlab('Method') + ylab("SSIM")
+   xlab('\nMethod') + ylab("SSIM")
 p3
 ggsave('SE-INU-FLASH-SSIM.jpg')
 
