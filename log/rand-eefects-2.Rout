@@ -1,0 +1,1133 @@
+
+R version 4.2.0 (2022-04-22) -- "Vigorous Calisthenics"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> noise_vec <- c(1, 2.5, 5, 7.5, 10)
+> all_normal <- c()
+> all_DL     <- c()
+> 
+> for(i in 1:5){
++     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
++     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
++ 
++     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F)))
++     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F)))
++ }
+> 
+> all_normal <- data.frame(all_normal)
+> all_DL <- data.frame(all_DL)
+> 
+> method <- rep(c("LS", "MLE"), each=3, times=5)
+> measures <- rep(c("MAPE", "RMSPE", "SSIM"), 5 * 2)
+> errs <- rep(c(1, 2.5, 5, 7.5, 10), each = 3 * 2)
+> DL <- rep(c(F, T), each = 5 * 3 * 2)
+> 
+> all_normal <- cbind(measures, errs, method, all_normal)
+> all_DL     <- cbind(measures, errs, method, all_DL    )
+> 
+> all_dat <- cbind(DL, rbind(all_normal, all_DL))
+> 
+> rm(DL)
+> rm(measures)
+> rm(errs)
+> 
+> 
+> library(tidyverse)
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+✔ ggplot2 3.3.5     ✔ purrr   0.3.4
+✔ tibble  3.1.6     ✔ dplyr   1.0.7
+✔ tidyr   1.1.4     ✔ stringr 1.4.0
+✔ readr   2.1.1     ✔ forcats 0.5.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+> tmp_dat <- all_dat %>%
++     filter(measures == "MAPE") %>%
++     filter(method == "LS") %>%
++     pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") 
+> 
+> 
+> library(lme4)
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+> mod1 <- lmer(vals ~ DL + (DL | img), tmp_dat)
+boundary (singular) fit: see help('isSingular')
+> mod1
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL + (DL | img)
+   Data: tmp_dat
+REML criterion at convergence: 389.4301
+Random effects:
+ Groups   Name        Std.Dev.  Corr
+ img      (Intercept) 0.000e+00     
+          DLTRUE      3.188e-08  NaN
+ Residual             2.118e+00     
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE  
+      5.469       -1.463  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> 
+> 
+> ## Random effects model to the real data
+> ggplot(tmp_dat) + 
++     aes(x = DL, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
++     geom_point(aes(size=1)) + 
++     facet_grid(cols = vars(img)) +
++     geom_line()
+> 
+> 
+> tmp_dat$errf <- factor(tmp_dat$errs)
+> 
+> (mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept   # make new column, errf
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+REML criterion at convergence: 175.8693
+Random effects:
+ Groups   Name        Std.Dev.
+ img      (Intercept) 0.5923  
+ Residual             0.5586  
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+   (Intercept)          DLTRUE         errf2.5           errf5         errf7.5  
+        2.2059          0.6637          1.2526          3.3260          4.9374  
+        errf10  DLTRUE:errf2.5    DLTRUE:errf5  DLTRUE:errf7.5   DLTRUE:errf10  
+        6.8004         -1.3271         -2.4917         -3.3672         -3.4452  
+> 
+> library(emmeans)
+> emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+> pairs(emmeans_1)
+errf = 1:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -0.664 0.263 72  -2.520  0.0139
+
+errf = 2.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    0.663 0.263 72   2.519  0.0140
+
+errf = 5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    1.828 0.263 72   6.942  <.0001
+
+errf = 7.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    2.704 0.263 72  10.267  <.0001
+
+errf = 10:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    2.781 0.263 72  10.563  <.0001
+
+Degrees-of-freedom method: kenward-roger 
+> 
+> library(ggResidpanel)
+> resid_panel(mod_test)
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 175.9
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.82692 -0.53290 -0.02103  0.59217  2.69874 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ img      (Intercept) 0.3508   0.5923  
+ Residual             0.3120   0.5586  
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+               Estimate Std. Error t value
+(Intercept)      2.2059     0.2714   8.128
+DLTRUE           0.6637     0.2633   2.520
+errf2.5          1.2526     0.2633   4.757
+errf5            3.3260     0.2633  12.631
+errf7.5          4.9374     0.2633  18.750
+errf10           6.8004     0.2633  25.825
+DLTRUE:errf2.5  -1.3271     0.3724  -3.564
+DLTRUE:errf5    -2.4917     0.3724  -6.691
+DLTRUE:errf7.5  -3.3672     0.3724  -9.042
+DLTRUE:errf10   -3.4452     0.3724  -9.251
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE err2.5 errf5  err7.5 errf10 DLTRUE:2 DLTRUE:5
+DLTRUE      -0.485                                                     
+errf2.5     -0.485  0.500                                              
+errf5       -0.485  0.500  0.500                                       
+errf7.5     -0.485  0.500  0.500  0.500                                
+errf10      -0.485  0.500  0.500  0.500  0.500                         
+DLTRUE:r2.5  0.343 -0.707 -0.707 -0.354 -0.354 -0.354                  
+DLTRUE:rrf5  0.343 -0.707 -0.354 -0.707 -0.354 -0.354  0.500           
+DLTRUE:r7.5  0.343 -0.707 -0.354 -0.354 -0.707 -0.354  0.500    0.500  
+DLTRUE:rr10  0.343 -0.707 -0.354 -0.354 -0.354 -0.707  0.500    0.500  
+            DLTRUE:7
+DLTRUE              
+errf2.5             
+errf5               
+errf7.5             
+errf10              
+DLTRUE:r2.5         
+DLTRUE:rrf5         
+DLTRUE:r7.5         
+DLTRUE:rr10  0.500  
+> coef(mod_test)$img
+   (Intercept)    DLTRUE errf2.5    errf5  errf7.5   errf10 DLTRUE:errf2.5
+V1    2.168202 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V2    2.021515 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V3    2.610122 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V4    1.915228 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V5    1.792942 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V6    2.658760 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V7    1.345197 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V8    2.060065 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+V9    3.281321 0.6637018 1.25257 3.326023 4.937403 6.800438      -1.327054
+   DLTRUE:errf5 DLTRUE:errf7.5 DLTRUE:errf10
+V1    -2.491709      -3.367233     -3.445186
+V2    -2.491709      -3.367233     -3.445186
+V3    -2.491709      -3.367233     -3.445186
+V4    -2.491709      -3.367233     -3.445186
+V5    -2.491709      -3.367233     -3.445186
+V6    -2.491709      -3.367233     -3.445186
+V7    -2.491709      -3.367233     -3.445186
+V8    -2.491709      -3.367233     -3.445186
+V9    -2.491709      -3.367233     -3.445186
+> 
+> 
+> 
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errf + (errf | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (errf | img)
+   Data: tmp_dat
+REML criterion at convergence: 117.2286
+Random effects:
+ Groups   Name        Std.Dev. Corr                   
+ img      (Intercept) 0.8173                          
+          errf2.5     0.1267   -1.00                  
+          errf5       0.5655   -0.67  0.67            
+          errf7.5     0.8068   -0.67  0.67  1.00      
+          errf10      1.1656   -0.61  0.61  1.00  1.00
+ Residual             0.3144                          
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+   (Intercept)          DLTRUE         errf2.5           errf5         errf7.5  
+        2.2059          0.6637          1.2526          3.3260          4.9374  
+        errf10  DLTRUE:errf2.5    DLTRUE:errf5  DLTRUE:errf7.5   DLTRUE:errf10  
+        6.8004         -1.3271         -2.4917         -3.3672         -3.4452  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+> pairs(emmeans_1)
+errf = 1:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -0.664 0.148 40  -4.478  0.0001
+
+errf = 2.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    0.663 0.148 40   4.476  0.0001
+
+errf = 5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    1.828 0.148 40  12.334  <.0001
+
+errf = 7.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    2.704 0.148 40  18.241  <.0001
+
+errf = 10:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    2.781 0.148 40  18.767  <.0001
+
+Degrees-of-freedom method: kenward-roger 
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (errf | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 117.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9468 -0.6107 -0.1218  0.5847  2.8081 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr                   
+ img      (Intercept) 0.66791  0.8173                          
+          errf2.5     0.01606  0.1267   -1.00                  
+          errf5       0.31982  0.5655   -0.67  0.67            
+          errf7.5     0.65094  0.8068   -0.67  0.67  1.00      
+          errf10      1.35851  1.1656   -0.61  0.61  1.00  1.00
+ Residual             0.09885  0.3144                          
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+               Estimate Std. Error t value
+(Intercept)      2.2059     0.2919   7.558
+DLTRUE           0.6637     0.1482   4.478
+errf2.5          1.2526     0.1541   8.128
+errf5            3.3260     0.2398  13.870
+errf7.5          4.9374     0.3071  16.079
+errf10           6.8004     0.4158  16.354
+DLTRUE:errf2.5  -1.3271     0.2096  -6.331
+DLTRUE:errf5    -2.4917     0.2096 -11.888
+DLTRUE:errf7.5  -3.3672     0.2096 -16.065
+DLTRUE:errf10   -3.4452     0.2096 -16.437
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE err2.5 errf5  err7.5 errf10 DLTRUE:2 DLTRUE:5
+DLTRUE      -0.254                                                     
+errf2.5     -0.500  0.481                                              
+errf5       -0.645  0.309  0.441                                       
+errf7.5     -0.666  0.241  0.392  0.838                                
+errf10      -0.624  0.178  0.328  0.843  0.902                         
+DLTRUE:r2.5  0.180 -0.707 -0.680 -0.219 -0.171 -0.126                  
+DLTRUE:rrf5  0.180 -0.707 -0.340 -0.437 -0.171 -0.126  0.500           
+DLTRUE:r7.5  0.180 -0.707 -0.340 -0.219 -0.341 -0.126  0.500    0.500  
+DLTRUE:rr10  0.180 -0.707 -0.340 -0.219 -0.171 -0.252  0.500    0.500  
+            DLTRUE:7
+DLTRUE              
+errf2.5             
+errf5               
+errf7.5             
+errf10              
+DLTRUE:r2.5         
+DLTRUE:rrf5         
+DLTRUE:r7.5         
+DLTRUE:rr10  0.500  
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)    DLTRUE   errf2.5    errf5  errf7.5   errf10 DLTRUE:errf2.5
+V1    1.636873 0.6637018 1.3408078 3.895085 5.749253 7.967508      -1.327054
+V2    1.678895 0.6637018 1.3342920 3.683265 5.446973 7.510401      -1.327054
+V3    2.004233 0.6637018 1.2838447 4.004551 5.905672 8.255736      -1.327054
+V4    2.045874 0.6637018 1.2773879 3.167691 4.711352 6.433168      -1.327054
+V5    2.107901 0.6637018 1.2677699 2.960919 4.416287 5.989762      -1.327054
+V6    2.248188 0.6637018 1.2460169 3.797319 5.610046 7.835641      -1.327054
+V7    1.669753 0.6637018 1.3357095 2.918977 4.356199 5.839581      -1.327054
+V8    2.211342 0.6637018 1.2517303 3.152467 4.689712 6.422026      -1.327054
+V9    4.250295 0.6637018 0.9355684 2.353932 3.551137 4.950123      -1.327054
+   DLTRUE:errf5 DLTRUE:errf7.5 DLTRUE:errf10
+V1    -2.491709      -3.367233     -3.445186
+V2    -2.491709      -3.367233     -3.445186
+V3    -2.491709      -3.367233     -3.445186
+V4    -2.491709      -3.367233     -3.445186
+V5    -2.491709      -3.367233     -3.445186
+V6    -2.491709      -3.367233     -3.445186
+V7    -2.491709      -3.367233     -3.445186
+V8    -2.491709      -3.367233     -3.445186
+V9    -2.491709      -3.367233     -3.445186
+> # Makes more sense without singularity????
+> 
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+REML criterion at convergence: 196.8788
+Random effects:
+ Groups   Name        Std.Dev. Corr 
+ img      (Intercept) 0.6200        
+          DLTRUE      0.0649   -1.00
+ Residual             0.6070        
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+     1.5716       0.5082       0.7495      -0.3790  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> # Singular
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 196.9
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.8232 -0.5211 -0.1538  0.6570  2.8087 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ img      (Intercept) 0.384405 0.6200        
+          DLTRUE      0.004212 0.0649   -1.00
+ Residual             0.368429 0.6070        
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  1.57156    0.26771   5.870
+DLTRUE       0.50821    0.24162   2.103
+errs         0.74955    0.02771  27.046
+DLTRUE:errs -0.37899    0.03919  -9.670
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.517              
+errs        -0.538  0.596       
+DLTRUE:errs  0.381 -0.843 -0.707
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)    DLTRUE      errs DLTRUE:errs
+V1   1.5388202 0.5116380 0.7495495  -0.3789895
+V2   1.3847240 0.5277692 0.7495495  -0.3789895
+V3   1.9983169 0.4635367 0.7495495  -0.3789895
+V4   1.2673074 0.5400606 0.7495495  -0.3789895
+V5   1.1386135 0.5535326 0.7495495  -0.3789895
+V6   2.0581114 0.4572772 0.7495495  -0.3789895
+V7   0.6728638 0.6022885 0.7495495  -0.3789895
+V8   1.4128741 0.5248223 0.7495495  -0.3789895
+V9   2.6723857 0.3929734 0.7495495  -0.3789895
+> 
+> 
+> 
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL * errs | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+REML criterion at convergence: 136.2108
+Random effects:
+ Groups   Name        Std.Dev. Corr             
+ img      (Intercept) 0.79813                   
+          DLTRUE      0.28971   0.61            
+          errs        0.16567  -0.68  0.04      
+          DLTRUE:errs 0.08584   0.15 -0.65 -0.79
+ Residual             0.34893                   
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+     1.5716       0.5082       0.7495      -0.3790  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 136.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1724 -0.5436 -0.1128  0.4880  2.0337 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr             
+ img      (Intercept) 0.637018 0.79813                   
+          DLTRUE      0.083929 0.28971   0.61            
+          errs        0.027445 0.16567  -0.68  0.04      
+          DLTRUE:errs 0.007368 0.08584   0.15 -0.65 -0.79
+ Residual             0.121749 0.34893                   
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  1.57156    0.28346   5.544
+DLTRUE       0.50821    0.16871   3.012
+errs         0.74955    0.05747  13.041
+DLTRUE:errs -0.37899    0.03642 -10.407
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE       0.128              
+errs        -0.699  0.159       
+DLTRUE:errs  0.241 -0.721 -0.715
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)    DLTRUE      errs DLTRUE:errs
+V1   0.9243099 0.3913028 0.8937126  -0.4140336
+V2   1.0559186 0.3493558 0.8252188  -0.3795705
+V3   1.1264635 0.5654985 0.9553069  -0.4693841
+V4   1.5808068 0.3512199 0.6718031  -0.3194411
+V5   1.7188599 0.3237167 0.6081329  -0.2895433
+V6   1.1922229 0.7647394 0.9603583  -0.5099292
+V7   1.3726104 0.2442412 0.5858811  -0.2684157
+V8   1.6680428 0.5254348 0.6935364  -0.3610302
+V9   3.5047821 1.0583896 0.5519955  -0.3995582
+> # Singular
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> tmp_dat <- all_dat %>%
++     filter(measures == "RMSPE") %>%
++     filter(method == "LS") %>%
++     pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") 
+> 
+> 
+> tmp_dat$errf <- factor(tmp_dat$errs)
+> (mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+REML criterion at convergence: 265.4545
+Random effects:
+ Groups   Name        Std.Dev.
+ img      (Intercept) 1.0766  
+ Residual             0.9741  
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+   (Intercept)          DLTRUE         errf2.5           errf5         errf7.5  
+         3.840           1.301           2.021           5.473           8.157  
+        errf10  DLTRUE:errf2.5    DLTRUE:errf5  DLTRUE:errf7.5   DLTRUE:errf10  
+        11.254          -2.241          -4.230          -5.688          -5.825  
+> 
+> emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+> pairs(emmeans_1)
+errf = 1:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    -1.30 0.459 72  -2.834  0.0060
+
+errf = 2.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE     0.94 0.459 72   2.047  0.0443
+
+errf = 5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE     2.93 0.459 72   6.379  <.0001
+
+errf = 7.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE     4.39 0.459 72   9.554  <.0001
+
+errf = 10:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE     4.52 0.459 72   9.852  <.0001
+
+Degrees-of-freedom method: kenward-roger 
+> 
+> library(ggResidpanel)
+> resid_panel(mod_test)
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 265.5
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.92444 -0.54884  0.01831  0.62384  2.55617 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ img      (Intercept) 1.1591   1.0766  
+ Residual             0.9489   0.9741  
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+               Estimate Std. Error t value
+(Intercept)      3.8397     0.4840   7.934
+DLTRUE           1.3012     0.4592   2.834
+errf2.5          2.0206     0.4592   4.400
+errf5            5.4732     0.4592  11.919
+errf7.5          8.1567     0.4592  17.763
+errf10          11.2536     0.4592  24.507
+DLTRUE:errf2.5  -2.2414     0.6494  -3.451
+DLTRUE:errf5    -4.2303     0.6494  -6.514
+DLTRUE:errf7.5  -5.6881     0.6494  -8.759
+DLTRUE:errf10   -5.8253     0.6494  -8.970
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE err2.5 errf5  err7.5 errf10 DLTRUE:2 DLTRUE:5
+DLTRUE      -0.474                                                     
+errf2.5     -0.474  0.500                                              
+errf5       -0.474  0.500  0.500                                       
+errf7.5     -0.474  0.500  0.500  0.500                                
+errf10      -0.474  0.500  0.500  0.500  0.500                         
+DLTRUE:r2.5  0.335 -0.707 -0.707 -0.354 -0.354 -0.354                  
+DLTRUE:rrf5  0.335 -0.707 -0.354 -0.707 -0.354 -0.354  0.500           
+DLTRUE:r7.5  0.335 -0.707 -0.354 -0.354 -0.707 -0.354  0.500    0.500  
+DLTRUE:rr10  0.335 -0.707 -0.354 -0.354 -0.354 -0.707  0.500    0.500  
+            DLTRUE:7
+DLTRUE              
+errf2.5             
+errf5               
+errf7.5             
+errf10              
+DLTRUE:r2.5         
+DLTRUE:rrf5         
+DLTRUE:r7.5         
+DLTRUE:rr10  0.500  
+> coef(mod_test)$img
+   (Intercept)   DLTRUE  errf2.5    errf5 errf7.5   errf10 DLTRUE:errf2.5
+V1    3.700048 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V2    3.450865 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V3    4.475178 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V4    3.312843 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V5    3.098443 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V6    4.571800 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V7    2.365175 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V8    3.641070 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+V9    5.941999 1.301235 2.020583 5.473177 8.15672 11.25363      -2.241395
+   DLTRUE:errf5 DLTRUE:errf7.5 DLTRUE:errf10
+V1    -4.230323      -5.688149     -5.825299
+V2    -4.230323      -5.688149     -5.825299
+V3    -4.230323      -5.688149     -5.825299
+V4    -4.230323      -5.688149     -5.825299
+V5    -4.230323      -5.688149     -5.825299
+V6    -4.230323      -5.688149     -5.825299
+V7    -4.230323      -5.688149     -5.825299
+V8    -4.230323      -5.688149     -5.825299
+V9    -4.230323      -5.688149     -5.825299
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+REML criterion at convergence: 292.8947
+Random effects:
+ Groups   Name        Std.Dev. Corr 
+ img      (Intercept) 1.07751       
+          DLTRUE      0.01752  -1.00
+ Residual             1.05699       
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+     2.7593       1.0356       1.2425      -0.6406  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> # Singular
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 292.9
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.8438 -0.5661 -0.1691  0.6705  2.8442 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. Corr 
+ img      (Intercept) 1.1610347 1.07751       
+          DLTRUE      0.0003068 0.01752  -1.00
+ Residual             1.1172225 1.05699       
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  2.75930    0.46563   5.926
+DLTRUE       1.03555    0.41910   2.471
+errs         1.24255    0.04826  25.747
+DLTRUE:errs -0.64064    0.06825  -9.387
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.461              
+errs        -0.539  0.599       
+DLTRUE:errs  0.381 -0.847 -0.707
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)   DLTRUE     errs DLTRUE:errs
+V1    2.622456 1.037777 1.242546  -0.6406444
+V2    2.374351 1.041810 1.242546  -0.6406444
+V3    3.392623 1.025257 1.242546  -0.6406444
+V4    2.235027 1.044075 1.242546  -0.6406444
+V5    2.021530 1.047545 1.242546  -0.6406444
+V6    3.490558 1.023665 1.242546  -0.6406444
+V7    1.292505 1.059396 1.242546  -0.6406444
+V8    2.560222 1.038788 1.242546  -0.6406444
+V9    4.844415 1.001658 1.242546  -0.6406444
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (errs | img), tmp_dat))
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (errs | img)
+   Data: tmp_dat
+REML criterion at convergence: 252.3739
+Random effects:
+ Groups   Name        Std.Dev. Corr 
+ img      (Intercept) 1.6798        
+          errs        0.2351   -0.76
+ Residual             0.7163        
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+     2.7593       1.0356       1.2425      -0.6406  
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (errs | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 252.4
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-3.05406 -0.63761 -0.06292  0.62840  1.88474 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ img      (Intercept) 2.82180  1.6798        
+          errs        0.05529  0.2351   -0.76
+ Residual             0.51303  0.7163        
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  2.75930    0.59486   4.639
+DLTRUE       1.03555    0.28397   3.647
+errs         1.24255    0.08493  14.631
+DLTRUE:errs -0.64064    0.04625 -13.852
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.239              
+errs        -0.769  0.231       
+DLTRUE:errs  0.202 -0.847 -0.272
+> coef(mod_test)$img
+   (Intercept)   DLTRUE      errs DLTRUE:errs
+V1    1.408558 1.035552 1.4740437  -0.6406444
+V2    1.591394 1.035552 1.3893090  -0.6406444
+V3    1.966535 1.035552 1.5213170  -0.6406444
+V4    2.581280 1.035552 1.1717771  -0.6406444
+V5    2.799123 1.035552 1.0872499  -0.6406444
+V6    2.408727 1.035552 1.4556698  -0.6406444
+V7    2.205260 1.035552 1.0552043  -0.6406444
+V8    3.006667 1.035552 1.1554884  -0.6406444
+V9    6.866144 1.035552 0.8728516  -0.6406444
+> # Makes more sense without singularity????
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL * errs | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+REML criterion at convergence: 227.8799
+Random effects:
+ Groups   Name        Std.Dev. Corr             
+ img      (Intercept) 1.5067                    
+          DLTRUE      0.4731    0.78            
+          errs        0.2880   -0.71 -0.11      
+          DLTRUE:errs 0.1321    0.13 -0.52 -0.80
+ Residual             0.5949                    
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+     2.7593       1.0356       1.2425      -0.6406  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 227.9
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-3.03414 -0.60769 -0.09494  0.53109  2.09087 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr             
+ img      (Intercept) 2.27024  1.5067                    
+          DLTRUE      0.22380  0.4731    0.78            
+          errs        0.08293  0.2880   -0.71 -0.11      
+          DLTRUE:errs 0.01745  0.1321    0.13 -0.52 -0.80
+ Residual             0.35394  0.5949                    
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  2.75930    0.52921   5.214
+DLTRUE       1.03555    0.28373   3.650
+errs         1.24255    0.09976  12.455
+DLTRUE:errs -0.64064    0.05843 -10.964
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE       0.226              
+errs        -0.717  0.078       
+DLTRUE:errs  0.220 -0.679 -0.704
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)    DLTRUE      errs DLTRUE:errs
+V1    1.494141 0.8644559 1.5089797  -0.7169561
+V2    1.701194 0.7940461 1.3975211  -0.6609512
+V3    1.929975 1.1809454 1.5949500  -0.8046153
+V4    2.707515 0.8348755 1.1200959  -0.5581955
+V5    2.937184 0.7798865 1.0123742  -0.5062841
+V6    2.126424 1.2559154 1.5861861  -0.8138878
+V7    2.452234 0.4885720 0.9582236  -0.4354872
+V8    3.061907 1.0019462 1.1271574  -0.5893358
+V9    6.423112 2.1193275 0.8774228  -0.6800866
+> # Singular
+> 
+> 
+> 
+> 
+> 
+> 
+> tmp_dat <- all_dat %>%
++     filter(measures == "SSIM") %>%
++     filter(method == "LS") %>%
++     pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") 
+> 
+> 
+> tmp_dat$errf <- factor(tmp_dat$errs)
+> (mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+REML criterion at convergence: 290.4102
+Random effects:
+ Groups   Name        Std.Dev.
+ img      (Intercept) 2.348   
+ Residual             1.066   
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+   (Intercept)          DLTRUE         errf2.5           errf5         errf7.5  
+       98.2322         -0.7384         -3.3672         -9.4301        -15.0139  
+        errf10  DLTRUE:errf2.5    DLTRUE:errf5  DLTRUE:errf7.5   DLTRUE:errf10  
+      -19.9550          2.7858          6.3201          8.5540          8.2134  
+> 
+> emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+> pairs(emmeans_1)
+errf = 1:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE    0.738 0.502 72   1.470  0.1460
+
+errf = 2.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -2.047 0.502 72  -4.075  0.0001
+
+errf = 5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -5.582 0.502 72 -11.111  <.0001
+
+errf = 7.5:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -7.816 0.502 72 -15.557  <.0001
+
+errf = 10:
+ contrast     estimate    SE df t.ratio p.value
+ FALSE - TRUE   -7.475 0.502 72 -14.879  <.0001
+
+Degrees-of-freedom method: kenward-roger 
+> 
+> library(ggResidpanel)
+> resid_panel(mod_test)
+> 
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errf + (1 | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 290.4
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.05299 -0.58685 -0.03167  0.55741  2.23479 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ img      (Intercept) 5.515    2.348   
+ Residual             1.136    1.066   
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+               Estimate Std. Error t value
+(Intercept)     98.2322     0.8596 114.274
+DLTRUE          -0.7384     0.5024  -1.470
+errf2.5         -3.3672     0.5024  -6.702
+errf5           -9.4301     0.5024 -18.771
+errf7.5        -15.0139     0.5024 -29.885
+errf10         -19.9550     0.5024 -39.721
+DLTRUE:errf2.5   2.7858     0.7105   3.921
+DLTRUE:errf5     6.3201     0.7105   8.896
+DLTRUE:errf7.5   8.5540     0.7105  12.040
+DLTRUE:errf10    8.2134     0.7105  11.560
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE err2.5 errf5  err7.5 errf10 DLTRUE:2 DLTRUE:5
+DLTRUE      -0.292                                                     
+errf2.5     -0.292  0.500                                              
+errf5       -0.292  0.500  0.500                                       
+errf7.5     -0.292  0.500  0.500  0.500                                
+errf10      -0.292  0.500  0.500  0.500  0.500                         
+DLTRUE:r2.5  0.207 -0.707 -0.707 -0.354 -0.354 -0.354                  
+DLTRUE:rrf5  0.207 -0.707 -0.354 -0.707 -0.354 -0.354  0.500           
+DLTRUE:r7.5  0.207 -0.707 -0.354 -0.354 -0.707 -0.354  0.500    0.500  
+DLTRUE:rr10  0.207 -0.707 -0.354 -0.354 -0.354 -0.707  0.500    0.500  
+            DLTRUE:7
+DLTRUE              
+errf2.5             
+errf5               
+errf7.5             
+errf10              
+DLTRUE:r2.5         
+DLTRUE:rrf5         
+DLTRUE:r7.5         
+DLTRUE:rr10  0.500  
+> coef(mod_test)$img
+   (Intercept)     DLTRUE   errf2.5     errf5   errf7.5    errf10
+V1    99.82583 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V2    99.38179 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V3   100.09866 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V4    97.13816 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V5    93.95982 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V6    96.36648 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V7    96.49031 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V8   100.85820 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+V9    99.97060 -0.7383913 -3.367176 -9.430074 -15.01388 -19.95499
+   DLTRUE:errf2.5 DLTRUE:errf5 DLTRUE:errf7.5 DLTRUE:errf10
+V1       2.785756     6.320131       8.554038      8.213401
+V2       2.785756     6.320131       8.554038      8.213401
+V3       2.785756     6.320131       8.554038      8.213401
+V4       2.785756     6.320131       8.554038      8.213401
+V5       2.785756     6.320131       8.554038      8.213401
+V6       2.785756     6.320131       8.554038      8.213401
+V7       2.785756     6.320131       8.554038      8.213401
+V8       2.785756     6.320131       8.554038      8.213401
+V9       2.785756     6.320131       8.554038      8.213401
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+REML criterion at convergence: 330.4573
+Random effects:
+ Groups   Name        Std.Dev. Corr 
+ img      (Intercept) 2.5440        
+          DLTRUE      0.4085   -1.00
+ Residual             1.2446        
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+   100.3218      -0.4723      -2.2390       0.9440  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> # Singular
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 330.5
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.66606 -0.68604  0.06367  0.70460  1.88350 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ img      (Intercept) 6.4719   2.5440        
+          DLTRUE      0.1669   0.4085   -1.00
+ Residual             1.5491   1.2446        
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept) 100.32176    0.91698 109.405
+DLTRUE       -0.47232    0.51189  -0.923
+errs         -2.23900    0.05683 -39.401
+DLTRUE:errs   0.94396    0.08036  11.746
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.505              
+errs        -0.322  0.577       
+DLTRUE:errs  0.228 -0.816 -0.707
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)     DLTRUE      errs DLTRUE:errs
+V1   102.03091 -0.7467713 -2.238995   0.9439595
+V2   101.54619 -0.6689348 -2.238995   0.9439595
+V3   102.33468 -0.7955515 -2.238995   0.9439595
+V4    99.13645 -0.2819783 -2.238995   0.9439595
+V5    95.72554  0.2657470 -2.238995   0.9439595
+V6    98.30584 -0.1485985 -2.238995   0.9439595
+V7    98.42529 -0.1677800 -2.238995   0.9439595
+V8   103.15875 -0.9278803 -2.238995   0.9439595
+V9   102.23218 -0.7790922 -2.238995   0.9439595
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (errs | img), tmp_dat))
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (errs | img)
+   Data: tmp_dat
+REML criterion at convergence: 302.2821
+Random effects:
+ Groups   Name        Std.Dev. Corr
+ img      (Intercept) 1.2507       
+          errs        0.2238   0.89
+ Residual             1.0224       
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+   100.3218      -0.4723      -2.2390       0.9440  
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (errs | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 302.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.4380 -0.7063  0.1792  0.7233  2.1709 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ img      (Intercept) 1.56421  1.2507       
+          errs        0.05007  0.2238   0.89
+ Residual             1.04536  1.0224       
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept) 100.32176    0.50592 198.295
+DLTRUE       -0.47232    0.40535  -1.165
+errs         -2.23900    0.08799 -25.445
+DLTRUE:errs   0.94396    0.06602  14.298
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.401              
+errs         0.370  0.318       
+DLTRUE:errs  0.339 -0.847 -0.375
+> coef(mod_test)$img
+   (Intercept)     DLTRUE      errs DLTRUE:errs
+V1   101.22722 -0.4723155 -2.120530   0.9439595
+V2   101.02845 -0.4723155 -2.173828   0.9439595
+V3   101.28879 -0.4723155 -2.064824   0.9439595
+V4    99.82362 -0.4723155 -2.367133   0.9439595
+V5    98.08549 -0.4723155 -2.629077   0.9439595
+V6    99.24363 -0.4723155 -2.370841   0.9439595
+V7    99.46347 -0.4723155 -2.418301   0.9439595
+V8   101.64199 -0.4723155 -1.978658   0.9439595
+V9   101.09316 -0.4723155 -2.027767   0.9439595
+> # Makes more sense without singularity????
+> 
+> 
+> (mod_test <- lmer(vals ~ DL * errs + (DL * errs | img), tmp_dat))
+boundary (singular) fit: see help('isSingular')
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+REML criterion at convergence: 297.4191
+Random effects:
+ Groups   Name        Std.Dev. Corr             
+ img      (Intercept) 1.5952                    
+          DLTRUE      0.8073   -0.83            
+          errs        0.1952    0.92 -0.98      
+          DLTRUE:errs 0.0697    0.76 -0.99  0.95
+ Residual             0.9778                    
+Number of obs: 90, groups:  img, 9
+Fixed Effects:
+(Intercept)       DLTRUE         errs  DLTRUE:errs  
+   100.3218      -0.4723      -2.2390       0.9440  
+optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+> 
+> summary(mod_test)
+Linear mixed model fit by REML ['lmerMod']
+Formula: vals ~ DL * errs + (DL * errs | img)
+   Data: tmp_dat
+
+REML criterion at convergence: 297.4
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.95472 -0.75820  0.08308  0.79163  2.15820 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr             
+ img      (Intercept) 2.544821 1.5952                    
+          DLTRUE      0.651721 0.8073   -0.83            
+          errs        0.038088 0.1952    0.92 -0.98      
+          DLTRUE:errs 0.004858 0.0697    0.76 -0.99  0.95
+ Residual             0.956164 0.9778                    
+Number of obs: 90, groups:  img, 9
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept) 100.32176    0.59825 167.692
+DLTRUE       -0.47232    0.47192  -1.001
+errs         -2.23900    0.07890 -28.378
+DLTRUE:errs   0.94396    0.06728  14.031
+
+Correlation of Fixed Effects:
+            (Intr) DLTRUE errs  
+DLTRUE      -0.688              
+errs         0.457 -0.183       
+DLTRUE:errs  0.492 -0.849 -0.104
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+
+> coef(mod_test)$img
+   (Intercept)      DLTRUE      errs DLTRUE:errs
+V1   101.46226 -0.73697113 -2.146232   0.9605382
+V2   101.18415 -0.51636845 -2.194976   0.9408766
+V3   101.59772 -1.01648992 -2.093687   0.9873351
+V4    99.64867  0.08215425 -2.360410   0.8943163
+V5    97.43297  0.80893770 -2.576218   0.8408290
+V6    98.96661 -0.21486769 -2.339673   0.9299667
+V7    99.16768  0.17183234 -2.395860   0.8895199
+V8   102.05647 -1.41212566 -2.007967   1.0229445
+V9   101.37929 -1.41694139 -2.035936   1.0293091
+> # Singular
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  6.643   0.183   6.958 

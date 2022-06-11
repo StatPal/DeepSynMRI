@@ -47,10 +47,32 @@ ggplot(tmp_dat) +
     facet_grid(cols = vars(img)) +
     geom_line()
 
-(mod_test <- lmer(vals ~ DL * errs + (1 | img), tmp_dat))   # random effect for intercept
+
+tmp_dat$errf <- factor(tmp_dat$errs)
+
+(mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept   # make new column, errf
+
+library(emmeans)
+emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+pairs(emmeans_1)
+
+library(ggResidpanel)
+resid_panel(mod_test)
 
 summary(mod_test)
 coef(mod_test)$img
+
+
+
+
+
+(mod_test <- lmer(vals ~ DL * errf + (errf | img), tmp_dat))
+emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+pairs(emmeans_1)
+
+summary(mod_test)
+coef(mod_test)$img
+# Makes more sense without singularity????
 
 
 
@@ -61,11 +83,6 @@ summary(mod_test)
 coef(mod_test)$img
 
 
-(mod_test <- lmer(vals ~ DL * errs + (errs | img), tmp_dat))
-
-summary(mod_test)
-coef(mod_test)$img
-# Makes more sense without singularity????
 
 
 
@@ -94,8 +111,15 @@ tmp_dat <- all_dat %>%
     pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") 
 
 
+tmp_dat$errf <- factor(tmp_dat$errs)
+(mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept
 
-(mod_test <- lmer(vals ~ DL * errs + (1 | img), tmp_dat))   # random effect for intercept
+emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+pairs(emmeans_1)
+
+library(ggResidpanel)
+resid_panel(mod_test)
+
 summary(mod_test)
 coef(mod_test)$img
 
@@ -128,7 +152,17 @@ tmp_dat <- all_dat %>%
     filter(method == "LS") %>%
     pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") 
 
-(mod_test <- lmer(vals ~ DL * errs + (1 | img), tmp_dat))   # random effect for intercept
+
+tmp_dat$errf <- factor(tmp_dat$errs)
+(mod_test <- lmer(vals ~ DL * errf + (1 | img), tmp_dat))   # random effect for intercept
+
+emmeans_1 <- emmeans(mod_test, ~ DL | errf)
+pairs(emmeans_1)
+
+library(ggResidpanel)
+resid_panel(mod_test)
+
+
 summary(mod_test)
 coef(mod_test)$img
 
