@@ -6,8 +6,8 @@ for(i in 1:5){
     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F)))
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F)))
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])  # to take only the normalized? versions
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -55,9 +55,13 @@ tmp_dat$errf <- factor(tmp_dat$errs)
 library(emmeans)
 emmeans_1 <- emmeans(mod_test, ~ DL | errf)
 pairs(emmeans_1)
+xtable::xtable(pairs(emmeans_1))
 
 library(ggResidpanel)
 resid_panel(mod_test)
+resid_panel(mod_test, type='response')
+# resid_panel(mod_test, type='standardized')
+
 
 summary(mod_test)
 coef(mod_test)$img
@@ -116,6 +120,7 @@ tmp_dat$errf <- factor(tmp_dat$errs)
 
 emmeans_1 <- emmeans(mod_test, ~ DL | errf)
 pairs(emmeans_1)
+xtable::xtable(pairs(emmeans_1))
 
 library(ggResidpanel)
 resid_panel(mod_test)

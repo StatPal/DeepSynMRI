@@ -1,5 +1,5 @@
 
-new_styles <- -1*c(9824,9827,9829,9830)
+# new_styles <- -1*c(9824,9827,9829,9830)
 
 INU_vec <- c("00", "10", "20")
 all_normal <- c()
@@ -9,8 +9,8 @@ for(i in 1:3){
     f1 <- paste0("values/pred-noise-5-INU-", INU_vec[i], ".csv")
     f2 <- paste0("values/DL-pred-noise-5-INU-", INU_vec[i], ".csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F)))
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F)))
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -123,7 +123,7 @@ p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
     geom_point(aes(color=factor(INU), size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
@@ -143,7 +143,7 @@ p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
     geom_point(aes(color=factor(INU), size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
@@ -164,7 +164,7 @@ p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
     geom_point(aes(color=factor(INU), size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line(aes(linetype = factor(INU), color = factor(INU))) +

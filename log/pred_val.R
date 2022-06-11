@@ -1,14 +1,14 @@
 
-new_styles <- -1*c(9818:9824,9829,9830,9831,9832,9833)
-new_styles <- -1*c(9828,9829,9830,9831,9832)
-new_styles <- -1*c(9824,9827,9829,9830)
-plot(sort(rnorm(25)), pch=new_styles)
-plot(sort(rnorm(25)), pch=c("☺", "❤", "✌", "❄", "✈"))
+# new_styles <- -1*c(9818:9824,9829,9830,9831,9832,9833)
+# new_styles <- -1*c(9828,9829,9830,9831,9832)
+# new_styles <- -1*c(9824,9827,9829,9830)
+# plot(sort(rnorm(25)), pch=new_styles)
+# plot(sort(rnorm(25)), pch=c("☺", "❤", "✌", "❄", "✈"))
 
-plot(sort(rnorm(25)), pch=c("❤", "♠", "♦", "♣"))
+# plot(sort(rnorm(25)), pch=c("❤", "♠", "♦", "♣"))
 
-new_styles <- -1*c(9824,9827,9829,9830)
-# plot(, type="b", pch=new_styles)
+# new_styles <- -1*c(9824,9827,9829,9830)
+# # plot(, type="b", pch=new_styles)
 
 
 
@@ -21,8 +21,8 @@ for(i in 1:5){
     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F)))
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F)))
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])   ## Only the scaled versions
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -144,7 +144,7 @@ tmp_dat %>%
   ggplot() + 
     aes(x = interaction(DL, method_old), y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
     geom_point(aes(size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
     geom_line() +
@@ -168,7 +168,7 @@ p <- tmp_dat %>%
   ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
     geom_point(aes(size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -189,7 +189,7 @@ p <- tmp_dat %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
     geom_point(aes(size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -211,7 +211,7 @@ p <- tmp_dat %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
     geom_point(aes(size=1)) + 
-    scale_shape_manual(values = new_styles[1:4]) + 
+    # scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +

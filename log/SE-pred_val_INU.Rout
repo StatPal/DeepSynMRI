@@ -1,0 +1,354 @@
+
+R version 4.2.0 (2022-04-22) -- "Vigorous Calisthenics"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> # new_styles <- -1*c(9824,9827,9829,9830)
+> 
+> INU_vec <- c("00", "10", "20")
+> all_normal <- c()
+> all_DL     <- c()
+> 
+> for(i in 1:3){
++     f1 <- paste0("values/pred-noise-5-INU-", INU_vec[i], ".csv")
++     f2 <- paste0("values/DL-pred-noise-5-INU-", INU_vec[i], ".csv")
++ 
++     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])
++     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
++ }
+> 
+> all_normal <- data.frame(all_normal)
+> all_DL <- data.frame(all_DL)
+> 
+> method <- rep(c("LS", "MLE"), each=3, times=3)  # The second will be 3
+> measures <- rep(c("MAPE", "RMSPE", "SSIM"), 3 * 2)
+> INU <- rep(INU_vec, each = 3 * 2)
+> DL <- rep(c(F, T), each = 3 * 3 * 2)
+> 
+> all_normal <- cbind(measures, INU, method, all_normal)
+> all_DL     <- cbind(measures, INU, method, all_DL    )
+> 
+> all_dat <- cbind(DL, rbind(all_normal, all_DL))
+> all_dat$INU <- as.numeric(all_dat$INU)
+> 
+> rm(DL)
+> rm(measures)
+> rm(INU)
+> 
+> 
+> names(all_dat)[5:13] <- paste0('Test image ', 1:9)
+> all_dat_old <- all_dat
+> # all_dat$DL <- ifelse(all_dat$DL, "DL", "No DL")
+> 
+> 
+> ## Plots
+> library(tidyverse)
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+✔ ggplot2 3.3.5     ✔ purrr   0.3.4
+✔ tibble  3.1.6     ✔ dplyr   1.0.7
+✔ tidyr   1.1.4     ✔ stringr 1.4.0
+✔ readr   2.1.1     ✔ forcats 0.5.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+> library(tidyr)
+> library(ggplot2)
+> library(xtable)
+> 
+> tmp <- all_dat %>%
++   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
++   filter(measures == "MAPE") %>% 
++   pivot_wider(names_from = img, values_from = vals) %>% 
++   select(-c(measures)) %>% 
++   arrange(method) %>%
++   arrange(INU) %>%
++   relocate(DL, .after=method) %>% 
++   mutate(DL = ifelse(DL, "DL", "")) %>% 
++   mutate(method = interaction(DL, method)) %>% 
++   select(-DL)
+> 
+> print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
+% latex table generated in R 4.2.0 by xtable 1.8-4 package
+% Sat Jun 11 11:28:05 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrrrrrrrr}
+  \hline
+INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test image 5 & Test image 6 & Test image 7 & Test image 8 & Test image 9 \\ 
+  \hline
+0.0 & .LS & 0.13 & 0.13 & 0.11 & 0.11 & 0.11 & 0.08 & 0.08 & 0.09 & 0.15 \\ 
+  0.0 & DL.LS & 0.11 & 0.11 & 0.09 & 0.09 & 0.10 & 0.06 & 0.06 & 0.07 & 0.12 \\ 
+  0.0 & .MLE & 0.14 & 0.14 & 0.11 & 0.11 & 0.12 & 0.08 & 0.08 & 0.09 & 0.15 \\ 
+  0.0 & DL.MLE & 0.11 & 0.11 & 0.09 & 0.09 & 0.09 & 0.06 & 0.06 & 0.07 & 0.12 \\ 
+  10.0 & .LS & 0.13 & 0.14 & 0.11 & 0.11 & 0.11 & 0.09 & 0.08 & 0.10 & 0.15 \\ 
+  10.0 & DL.LS & 0.11 & 0.11 & 0.09 & 0.09 & 0.09 & 0.07 & 0.07 & 0.07 & 0.12 \\ 
+  10.0 & .MLE & 0.14 & 0.14 & 0.11 & 0.11 & 0.12 & 0.08 & 0.08 & 0.10 & 0.15 \\ 
+  10.0 & DL.MLE & 0.10 & 0.10 & 0.09 & 0.09 & 0.09 & 0.07 & 0.06 & 0.07 & 0.12 \\ 
+  20.0 & .LS & 0.15 & 0.15 & 0.12 & 0.13 & 0.14 & 0.10 & 0.10 & 0.09 & 0.14 \\ 
+  20.0 & DL.LS & 0.12 & 0.12 & 0.10 & 0.11 & 0.11 & 0.08 & 0.08 & 0.09 & 0.13 \\ 
+  20.0 & .MLE & 0.14 & 0.15 & 0.12 & 0.13 & 0.13 & 0.09 & 0.09 & 0.10 & 0.14 \\ 
+  20.0 & DL.MLE & 0.12 & 0.12 & 0.10 & 0.10 & 0.11 & 0.08 & 0.08 & 0.08 & 0.13 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> tmp <- all_dat %>%
++   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
++   filter(measures == "RMSPE") %>% 
++   pivot_wider(names_from = img, values_from = vals) %>% 
++   select(-c(measures)) %>% 
++   arrange(method) %>%
++   arrange(INU) %>%
++   relocate(DL, .after=method) %>% 
++   mutate(DL = ifelse(DL, "DL", "")) %>% 
++   mutate(method = interaction(DL, method)) %>% 
++   select(-DL)
+> 
+> print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
+% latex table generated in R 4.2.0 by xtable 1.8-4 package
+% Sat Jun 11 11:28:05 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrrrrrrrr}
+  \hline
+INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test image 5 & Test image 6 & Test image 7 & Test image 8 & Test image 9 \\ 
+  \hline
+0.0 & .LS & 0.23 & 0.23 & 0.20 & 0.20 & 0.20 & 0.17 & 0.16 & 0.16 & 0.21 \\ 
+  0.0 & DL.LS & 0.22 & 0.22 & 0.20 & 0.20 & 0.20 & 0.16 & 0.16 & 0.15 & 0.18 \\ 
+  0.0 & .MLE & 0.23 & 0.23 & 0.19 & 0.19 & 0.19 & 0.16 & 0.15 & 0.17 & 0.22 \\ 
+  0.0 & DL.MLE & 0.21 & 0.21 & 0.19 & 0.19 & 0.19 & 0.16 & 0.15 & 0.14 & 0.17 \\ 
+  10.0 & .LS & 0.23 & 0.23 & 0.20 & 0.20 & 0.20 & 0.17 & 0.16 & 0.16 & 0.21 \\ 
+  10.0 & DL.LS & 0.21 & 0.21 & 0.19 & 0.19 & 0.19 & 0.16 & 0.15 & 0.14 & 0.18 \\ 
+  10.0 & .MLE & 0.22 & 0.22 & 0.19 & 0.19 & 0.19 & 0.16 & 0.16 & 0.17 & 0.22 \\ 
+  10.0 & DL.MLE & 0.20 & 0.20 & 0.19 & 0.18 & 0.18 & 0.16 & 0.15 & 0.14 & 0.18 \\ 
+  20.0 & .LS & 0.24 & 0.24 & 0.21 & 0.21 & 0.22 & 0.18 & 0.17 & 0.16 & 0.20 \\ 
+  20.0 & DL.LS & 0.22 & 0.22 & 0.20 & 0.20 & 0.20 & 0.17 & 0.16 & 0.15 & 0.18 \\ 
+  20.0 & .MLE & 0.21 & 0.21 & 0.18 & 0.19 & 0.20 & 0.16 & 0.16 & 0.17 & 0.21 \\ 
+  20.0 & DL.MLE & 0.21 & 0.21 & 0.19 & 0.19 & 0.19 & 0.16 & 0.16 & 0.15 & 0.18 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> tmp <- all_dat %>%
++   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
++   filter(measures == "SSIM") %>% 
++   pivot_wider(names_from = img, values_from = vals) %>% 
++   select(-c(measures)) %>% 
++   arrange(method) %>%
++   arrange(INU) %>%
++   relocate(DL, .after=method) %>% 
++   mutate(DL = ifelse(DL, "DL", "")) %>% 
++   mutate(method = interaction(DL, method)) %>% 
++   select(-DL)
+> 
+> print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
+% latex table generated in R 4.2.0 by xtable 1.8-4 package
+% Sat Jun 11 11:28:05 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrrrrrrrr}
+  \hline
+INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test image 5 & Test image 6 & Test image 7 & Test image 8 & Test image 9 \\ 
+  \hline
+0.0 & .LS & 91.01 & 90.38 & 91.09 & 87.08 & 83.22 & 85.63 & 86.07 & 92.67 & 92.07 \\ 
+  0.0 & DL.LS & 95.94 & 95.65 & 95.94 & 93.25 & 89.87 & 92.89 & 93.29 & 96.89 & 95.73 \\ 
+  0.0 & .MLE & 90.22 & 89.48 & 90.49 & 85.84 & 81.46 & 85.28 & 86.05 & 92.59 & 91.99 \\ 
+  0.0 & DL.MLE & 95.93 & 95.63 & 95.92 & 93.21 & 89.80 & 92.87 & 93.31 & 96.91 & 95.75 \\ 
+  10.0 & .LS & 90.99 & 90.37 & 91.09 & 87.07 & 83.22 & 85.53 & 85.97 & 92.59 & 92.05 \\ 
+  10.0 & DL.LS & 96.57 & 96.30 & 96.39 & 93.45 & 89.48 & 92.55 & 93.40 & 96.77 & 95.51 \\ 
+  10.0 & .MLE & 90.40 & 89.68 & 90.62 & 86.12 & 81.86 & 85.25 & 86.01 & 92.52 & 91.98 \\ 
+  10.0 & DL.MLE & 96.56 & 96.29 & 96.38 & 93.42 & 89.42 & 92.54 & 93.43 & 96.78 & 95.52 \\ 
+  20.0 & .LS & 90.02 & 88.64 & 90.85 & 83.76 & 79.39 & 85.26 & 83.64 & 94.23 & 94.17 \\ 
+  20.0 & DL.LS & 95.91 & 95.48 & 95.85 & 92.11 & 88.22 & 92.01 & 92.01 & 96.88 & 95.90 \\ 
+  20.0 & .MLE & 89.49 & 88.03 & 90.47 & 83.00 & 78.39 & 85.05 & 83.78 & 94.15 & 94.06 \\ 
+  20.0 & DL.MLE & 95.93 & 95.49 & 95.86 & 92.11 & 88.23 & 92.01 & 92.03 & 96.88 & 95.91 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> 
+> 
+> 
+> 
+> 
+> all_dat <- all_dat_old
+> names(all_dat)[5:13] <- paste0('Test image ', 1:9)
+> 
+> 
+> 
+> 
+> library(stringr)
+> 
+> names(all_dat)[5:13] <- paste0('Test image ', 1:9)
+> TE_TR <- c("15/0.6", "20/0.6", "10/1", "30/1", "40/1", "10/2", "40/2", "60/3", "100/3")
+> TE_TR_names  <- paste0('TE/TR = ', TE_TR[1:9])
+> 
+> 
+> tmp_dat_old <- all_dat %>%
++   pivot_longer(!c(DL, measures, INU, method), names_to = "img", values_to = "vals") %>% 
++   filter(img == "Test image 1" | img == "Test image 2" | img == "Test image 6" | img == "Test image 8") %>% 
++   mutate(method_old = method) %>%
++   mutate(method = ifelse(DL, paste0("DL+", method), method )) 
+> 
+> tmp_dat <- tmp_dat_old
+> tmp_dat$img_vals  <-  TE_TR_names[as.numeric( str_split_fixed(tmp_dat_old$img, ' ', n=3)[,3] )]
+> 
+> 
+> 
+> library(RColorBrewer)
+> my_cols <-  brewer.pal(5, 'Dark2')
+> 
+> 
+> 
+> p <- tmp_dat %>%
++   filter(measures == "MAPE") %>%
++   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
++     geom_point(aes(color=factor(INU), size=1)) + 
++     # scale_shape_manual(values = new_styles[1:4]) + 
++     scale_colour_manual(values=my_cols) + 
++     facet_grid(cols = vars(img_vals)) +
++     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"))
+> 
+> p1 <- p + 
++   guides(shape = guide_legend(override.aes = list(size = 5))) + 
++   guides(size = FALSE) + 
++   labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
++   xlab('Method') + ylab("MAPE")
+Warning message:
+`guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead. 
+> p1
+> ggsave('SE-INU-MAPE.jpg')
+Saving 7 x 7 in image
+> 
+> 
+> p <- tmp_dat %>%
++   filter(measures == "RMSPE") %>%
++   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
++     geom_point(aes(color=factor(INU), size=1)) + 
++     # scale_shape_manual(values = new_styles[1:4]) + 
++     scale_colour_manual(values=my_cols) + 
++     facet_grid(cols = vars(img_vals)) +
++     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"))
+> 
+> p2 <- p + 
++   guides(shape = guide_legend(override.aes = list(size = 5))) + 
++   guides(size = FALSE) + 
++   labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
++   xlab('Method') + ylab("RMSPE")
+Warning message:
+`guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead. 
+> p2
+> ggsave('SE-INU-FLASH-RMSPE.jpg')
+Saving 7 x 7 in image
+> 
+> 
+> 
+> p <- tmp_dat %>%
++   filter(measures == "SSIM") %>%
++   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
++     geom_point(aes(color=factor(INU), size=1)) + 
++     # scale_shape_manual(values = new_styles[1:4]) + 
++     scale_colour_manual(values=my_cols) + 
++     facet_grid(cols = vars(img_vals)) +
++     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"))
+> 
+> p3 <- p + 
++   guides(shape = guide_legend(override.aes = list(size = 5))) + 
++   guides(size = FALSE) + 
++   labs(color  = "INU %", linetype = "INU %", shape = "Method") + 
++    xlab('\nMethod') + ylab("SSIM")
+Warning message:
+`guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead. 
+> p3
+> ggsave('SE-INU-FLASH-SSIM.jpg')
+Saving 7 x 7 in image
+> 
+> 
+> library(patchwork)
+> p1_new <- p1 + theme(legend.position="none", 
++               axis.title.x=element_blank(), 
++               axis.text.x=element_blank()) 
+> p2_new <- p2 + theme(legend.position="none", 
++               strip.background = element_blank(),
++               strip.text.x = element_blank(),
++               axis.title.x=element_blank(), 
++               axis.text.x=element_blank())
+> p3_new <- p3 + theme(legend.position="none", 
++               strip.background = element_blank(),
++               strip.text.x = element_blank(), 
++               axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+> 
+> p1_new / p2_new / p3_new
+> 
+> ggsave('all-SE-INU.png', scale=0.75)
+Saving 5.25 x 5.25 in image
+> 
+> 
+> # p2 + theme(legend.position="bottom") + 
+> #   labs(color  = "INU %: ", linetype = "INU %: ", shape = "Method: ") + 
+> #   theme(legend.key.width = unit(2,"cm")) +
+> #   guides(shape = FALSE, size="none", 
+> #         linetype = guide_legend(override.aes = list(size = 1.5)),
+> #         )
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> leg1 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + 
++   labs(color  = "INU %: ", linetype = "INU %: ", shape = "Method: ") + 
++   theme(legend.key.width = unit(2,"cm")) +
++   guides(shape = FALSE, size="none", 
++         linetype = guide_legend(override.aes = list(size = 2.0, shape=NA))))
+Warning message:
+`guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead. 
+> legend1 <- ggpubr::as_ggplot(leg1) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"), 
++                                 legend.position="bottom")
+> ggsave('SE-INU-Legend1.png', scale=1.0)
+Saving 7 x 7 in image
+> 
+> leg2 <- cowplot::get_legend(p2 + theme(legend.position="bottom") + labs(shape = "Method: ") +
++   guides(color = FALSE, linetype = FALSE, size="none"))
+Warning message:
+`guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead. 
+> legend2 <- ggpubr::as_ggplot(leg2) + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"), 
++                                 legend.position="bottom")
+> ggsave('SE-INU-Legend2.png', scale=1.0)
+Saving 7 x 7 in image
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  5.262   0.122   5.355 
