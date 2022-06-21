@@ -9,8 +9,8 @@ for(i in 1:3){
     f1 <- paste0("values/FLASH-pred-noise-5-INU-", INU_vec[i], ".csv")
     f2 <- paste0("values/FLASH-DL-pred-noise-5-INU-", INU_vec[i], ".csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
 }
 
 all_normal <- data.frame(all_normal)

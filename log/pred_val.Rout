@@ -40,8 +40,8 @@ Type 'q()' to quit R.
 +     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
 +     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 + 
-+     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])   ## Only the scaled versions
-+     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
++     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])   ## Only the scaled versions
++     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
 + }
 > 
 > all_normal <- data.frame(all_normal)
@@ -114,7 +114,7 @@ Type 'q()' to quit R.
 > library(xtable)
 > print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Sat Jun 11 11:28:23 2022
+% Mon Jun 20 23:31:53 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrrrrrrrr}
@@ -396,4 +396,4 @@ Saving 7 x 7 in image
 > 
 > proc.time()
    user  system elapsed 
-  6.344   0.098   6.435 
+  6.056   0.090   6.178 

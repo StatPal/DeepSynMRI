@@ -6,8 +6,8 @@ for(i in 1:5){
     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(4,5,3, 9,10,8), ])  # to take only the normalized? versions
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(4,5,3, 9,10,8), ])
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])  # to take only the normalized? versions c(4,5,3, 9,10,8)
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -62,6 +62,16 @@ resid_panel(mod_test)
 resid_panel(mod_test, type='response')
 # resid_panel(mod_test, type='standardized')
 
+p_MAPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"))
+
+p_MAPE
+
+(design_X <- getME(mod_test, "X"))
+design_X %*% t(design_X)
+
+diag( design_X %*% solve(t(design_X) %*% design_X) %*% t(design_X) )
 
 summary(mod_test)
 coef(mod_test)$img
@@ -125,6 +135,13 @@ xtable::xtable(pairs(emmeans_1))
 library(ggResidpanel)
 resid_panel(mod_test)
 
+p_RMSPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"))
+
+p_RMSPE
+
+
 summary(mod_test)
 coef(mod_test)$img
 
@@ -167,6 +184,12 @@ pairs(emmeans_1)
 library(ggResidpanel)
 resid_panel(mod_test)
 
+p_SSIM <- resid_panel(mod_test, type='response', plots = "qq") + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"))
+
+p_SSIM
+
 
 summary(mod_test)
 coef(mod_test)$img
@@ -190,4 +213,12 @@ summary(mod_test)
 coef(mod_test)$img
 # Singular
 
+
+
+
+pdf('qqplots.pdf')
+p_MAPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to MAPE measures')
+p_RMSPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to RMSPE measures')
+p_SSIM + ggtitle('Q-Q Plot for residuals of radom effects model fitted to SSIM measures')
+dev.off()
 
