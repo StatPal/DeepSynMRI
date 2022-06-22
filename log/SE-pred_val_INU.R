@@ -1,5 +1,7 @@
 
 # new_styles <- -1*c(9824,9827,9829,9830)
+new_styles <- 15:18
+
 
 INU_vec <- c("00", "10", "20")
 all_normal <- c()
@@ -121,12 +123,13 @@ my_cols <-  brewer.pal(5, 'Dark2')
 
 p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
@@ -141,12 +144,13 @@ ggsave('SE-INU-MAPE.jpg')
 
 p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 
@@ -162,12 +166,13 @@ ggsave('SE-INU-FLASH-RMSPE.jpg')
 
 p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
-  ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-    geom_point(aes(color=factor(INU), size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+  ggplot() + 
+    aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
-    geom_line(aes(linetype = factor(INU), color = factor(INU))) +
+    geom_line() +
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
                                 plot.background = element_rect(fill = "white"))
 

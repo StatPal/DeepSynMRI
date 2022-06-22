@@ -1,5 +1,6 @@
 
 # new_styles <- -1*c(9824,9827,9829,9830)
+new_styles <- 15:18
 
 INU_vec <- c("00", "10", "20")
 all_normal <- c()
@@ -121,8 +122,8 @@ p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -142,8 +143,8 @@ p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -164,8 +165,8 @@ p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +

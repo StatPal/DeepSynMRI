@@ -30,6 +30,8 @@ Type 'q()' to quit R.
 > # # plot(, type="b", pch=new_styles)
 > 
 > 
+> new_styles <- 15:18
+> 
 > 
 > 
 > noise_vec <- c(1, 2.5, 5, 7.5, 10)
@@ -114,7 +116,7 @@ Type 'q()' to quit R.
 > library(xtable)
 > print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Mon Jun 20 23:31:53 2022
+% Tue Jun 21 20:42:37 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrrrrrrrr}
@@ -201,8 +203,8 @@ errs & method & V1 & V2 & V3 & V4 & V5 & V6 & V7 & V8 & V9 \\
 +   mutate(img = img) %>% 
 +   ggplot() + 
 +     aes(x = interaction(DL, method_old), y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-+     geom_point(aes(size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img)) +
 +     geom_line() +
@@ -227,8 +229,8 @@ Warning message:
 +   filter(measures == "MAPE") %>%
 +   ggplot() + 
 +     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-+     geom_point(aes(size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
 +     geom_line() +
@@ -251,8 +253,8 @@ Saving 7 x 7 in image
 +   filter(measures == "RMSPE") %>%
 +     ggplot() + 
 +     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-+     geom_point(aes(size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
 +     geom_line() +
@@ -276,8 +278,8 @@ Saving 7 x 7 in image
 +   filter(measures == "SSIM") %>%
 +     ggplot() + 
 +     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-+     geom_point(aes(size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
 +     geom_line() +
@@ -396,4 +398,4 @@ Saving 7 x 7 in image
 > 
 > proc.time()
    user  system elapsed 
-  6.056   0.090   6.178 
+  5.797   0.074   5.870 

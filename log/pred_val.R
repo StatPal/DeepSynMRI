@@ -11,6 +11,8 @@
 # # plot(, type="b", pch=new_styles)
 
 
+new_styles <- 15:18
+
 
 
 noise_vec <- c(1, 2.5, 5, 7.5, 10)
@@ -143,8 +145,8 @@ tmp_dat %>%
   mutate(img = img) %>% 
   ggplot() + 
     aes(x = interaction(DL, method_old), y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
     geom_line() +
@@ -167,8 +169,8 @@ p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -188,8 +190,8 @@ p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +
@@ -210,8 +212,8 @@ p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(aes(size=1)) + 
-    # scale_shape_manual(values = new_styles[1:4]) + 
+    geom_point(size=3.5) + 
+    scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
     geom_line() +

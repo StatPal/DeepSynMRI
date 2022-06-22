@@ -19,6 +19,8 @@ Type 'q()' to quit R.
 
 > 
 > # new_styles <- -1*c(9824,9827,9829,9830)
+> new_styles <- 15:18
+> 
 > 
 > INU_vec <- c("00", "10", "20")
 > all_normal <- c()
@@ -84,7 +86,7 @@ Type 'q()' to quit R.
 > 
 > print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Mon Jun 20 23:32:01 2022
+% Tue Jun 21 20:48:05 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrrrrrrrr}
@@ -121,7 +123,7 @@ INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test 
 > 
 > print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Mon Jun 20 23:32:01 2022
+% Tue Jun 21 20:48:06 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrrrrrrrr}
@@ -158,7 +160,7 @@ INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test 
 > 
 > print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Mon Jun 20 23:32:01 2022
+% Tue Jun 21 20:48:06 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrrrrrrrr}
@@ -217,12 +219,13 @@ INU & method & Test image 1 & Test image 2 & Test image 3 & Test image 4 & Test 
 > 
 > p <- tmp_dat %>%
 +   filter(measures == "MAPE") %>%
-+   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-+     geom_point(aes(color=factor(INU), size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++   ggplot() + 
++     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
-+     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     geom_line() +
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
 +                                 plot.background = element_rect(fill = "white"))
 > 
@@ -240,12 +243,13 @@ Saving 7 x 7 in image
 > 
 > p <- tmp_dat %>%
 +   filter(measures == "RMSPE") %>%
-+   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-+     geom_point(aes(color=factor(INU), size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++   ggplot() + 
++     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
-+     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     geom_line() +
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
 +                                 plot.background = element_rect(fill = "white"))
 > 
@@ -264,12 +268,13 @@ Saving 7 x 7 in image
 > 
 > p <- tmp_dat %>%
 +   filter(measures == "SSIM") %>%
-+   ggplot(aes(x = method, y = vals, group = INU, shape=method)) +
-+     geom_point(aes(color=factor(INU), size=1)) + 
-+     # scale_shape_manual(values = new_styles[1:4]) + 
++   ggplot() + 
++     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
++     geom_point(size=3.5) + 
++     scale_shape_manual(values = new_styles[1:4]) + 
 +     scale_colour_manual(values=my_cols) + 
 +     facet_grid(cols = vars(img_vals)) +
-+     geom_line(aes(linetype = factor(INU), color = factor(INU))) +
++     geom_line() +
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
 +                                 plot.background = element_rect(fill = "white"))
 > 
@@ -351,4 +356,4 @@ Saving 7 x 7 in image
 > 
 > proc.time()
    user  system elapsed 
-  5.146   0.117   5.260 
+  5.486   0.110   5.614 

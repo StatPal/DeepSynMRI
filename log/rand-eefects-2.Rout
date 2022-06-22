@@ -142,7 +142,7 @@ errf = 10:
 Degrees-of-freedom method: kenward-roger 
 > xtable::xtable(pairs(emmeans_1))
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Tue Jun 21 00:32:46 2022
+% Tue Jun 21 22:14:04 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrl}
@@ -175,9 +175,71 @@ FALSE - TRUE & 0.1193 & 0.0103 & 72 & 11.613 & $<$.0001 \\
 > 
 > p_MAPE <- resid_panel(mod_test, type='response', plots = "qq") + 
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-+                                 plot.background = element_rect(fill = "white"))
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text=element_text(size=40),
++         axis.title=element_text(size=20,face="bold"))
 > 
 > p_MAPE
+> 
+> 
+> library(qqplotr)
+
+Attaching package: ‘qqplotr’
+
+The following objects are masked from ‘package:ggplot2’:
+
+    stat_qq_line, StatQqLine
+
+> qq <- ggResidpanel:::plot_qq(model = mod_test, type = "response", theme = "bw", 
++             axis.text.size = 10, title.text.size = 20, 
++             title.opt = 'Q-Q Plot', qqline = T, qqbands = T)
+> 
+> 
+> 
+> type = "response"
+> model = mod_test
+> model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+> r_label <- ggResidpanel:::helper_label(type, model)
+> data_add <- ggResidpanel:::helper_plotly_label(model)
+> model_values <- cbind(model_values, data_add)
+> names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+> model_values <- model_values[order(model_values$Residual), ]
+> plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
++     label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
++     y = "Sample Quantiles")
+> plot_data <- ggplot_build(plot)
+> model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+> model_values$Residual_Plot <- model_values$Residual
+> 
+> 
+> # plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+> #     label = "Data")) + stat_qq_point() + geom_point(mapping = aes_string(x = "Theoretical", 
+> #     y = "Residual")) + labs(x = "Theoretical Quantiles", 
+> #     y = "Sample Quantiles")
+> 
+> p_MAPE <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
+> 
+> p_MAPE_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_band() + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"),
++                                 # plot.title = element_text(size = 10, face = "bold"), 
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
+> 
+> p_MAPE
+> p_MAPE_band
+> 
+> 
 > 
 > (design_X <- getME(mod_test, "X"))
    (Intercept) DLTRUE errf2.5 errf5 errf7.5 errf10 DLTRUE:errf2.5 DLTRUE:errf5
@@ -1165,7 +1227,7 @@ errf = 10:
 Degrees-of-freedom method: kenward-roger 
 > xtable::xtable(pairs(emmeans_1))
 % latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Tue Jun 21 00:32:48 2022
+% Tue Jun 21 22:14:07 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrl}
@@ -1194,11 +1256,55 @@ FALSE - TRUE & 0.1418 & 0.0081 & 72 & 17.418 & $<$.0001 \\
 > library(ggResidpanel)
 > resid_panel(mod_test)
 > 
-> p_RMSPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+> # p_RMSPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+> #     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+> #                                 plot.background = element_rect(fill = "white"))
+> 
+> # p_RMSPE
+> 
+> 
+> type = "response"
+> model = mod_test
+> model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+> r_label <- ggResidpanel:::helper_label(type, model)
+> data_add <- ggResidpanel:::helper_plotly_label(model)
+> model_values <- cbind(model_values, data_add)
+> names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+> model_values <- model_values[order(model_values$Residual), ]
+> plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
++     label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
++     y = "Sample Quantiles")
+> plot_data <- ggplot_build(plot)
+> model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+> model_values$Residual_Plot <- model_values$Residual
+> 
+> 
+> p_RMSPE <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-+                                 plot.background = element_rect(fill = "white"))
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
+> 
+> p_RMSPE_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_band() + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
 > 
 > p_RMSPE
+> p_RMSPE_band
+> 
+> 
+> 
+> 
+> 
+> 
 > 
 > 
 > summary(mod_test)
@@ -1518,11 +1624,51 @@ Degrees-of-freedom method: kenward-roger
 > library(ggResidpanel)
 > resid_panel(mod_test)
 > 
-> p_SSIM <- resid_panel(mod_test, type='response', plots = "qq") + 
+> # p_SSIM <- resid_panel(mod_test, type='response', plots = "qq") + 
+> #     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+> #                                 plot.background = element_rect(fill = "white"))
+> 
+> # p_SSIM
+> 
+> 
+> type = "response"
+> model = mod_test
+> model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+> r_label <- ggResidpanel:::helper_label(type, model)
+> data_add <- ggResidpanel:::helper_plotly_label(model)
+> model_values <- cbind(model_values, data_add)
+> names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+> model_values <- model_values[order(model_values$Residual), ]
+> plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
++     label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
++     y = "Sample Quantiles")
+> plot_data <- ggplot_build(plot)
+> model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+> model_values$Residual_Plot <- model_values$Residual
+> 
+> 
+> p_SSIM <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
 +     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-+                                 plot.background = element_rect(fill = "white"))
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
+> 
+> p_SSIM_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
++     label = "Data")) + stat_qq_band() + stat_qq_point() + 
++     labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
++     stat_qq_line(color = "blue", size = 0.5) + 
++     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
++                                 plot.background = element_rect(fill = "white"),
++                                 axis.text = element_text(size = 15),
++                                 axis.title = element_text(size = 20))
 > 
 > p_SSIM
+> p_SSIM_band
+> 
+> 
 > 
 > 
 > summary(mod_test)
@@ -1791,9 +1937,17 @@ V9   101.37929 -1.41694139 -2.035936   1.0293091
 > 
 > 
 > pdf('qqplots.pdf')
-> p_MAPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to MAPE measures')
-> p_RMSPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to RMSPE measures')
-> p_SSIM + ggtitle('Q-Q Plot for residuals of radom effects model fitted to SSIM measures')
+> p_MAPE_band
+> p_RMSPE_band
+> p_SSIM_band
+> 
+> p_MAPE
+> p_RMSPE
+> p_SSIM
+> 
+> # p_MAPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to MAPE measures')
+> # p_RMSPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to RMSPE measures')
+> # p_SSIM + ggtitle('Q-Q Plot for residuals of radom effects model fitted to SSIM measures')
 > dev.off()
 pdf 
   2 
@@ -1801,4 +1955,4 @@ pdf
 > 
 > proc.time()
    user  system elapsed 
-  6.743   0.165   6.897 
+  8.566   0.160   8.714 

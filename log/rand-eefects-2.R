@@ -64,9 +64,64 @@ resid_panel(mod_test, type='response')
 
 p_MAPE <- resid_panel(mod_test, type='response', plots = "qq") + 
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-                                plot.background = element_rect(fill = "white"))
+                                plot.background = element_rect(fill = "white"),
+                                axis.text=element_text(size=40),
+        axis.title=element_text(size=20,face="bold"))
 
 p_MAPE
+
+
+library(qqplotr)
+qq <- ggResidpanel:::plot_qq(model = mod_test, type = "response", theme = "bw", 
+            axis.text.size = 10, title.text.size = 20, 
+            title.opt = 'Q-Q Plot', qqline = T, qqbands = T)
+
+
+
+type = "response"
+model = mod_test
+model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+r_label <- ggResidpanel:::helper_label(type, model)
+data_add <- ggResidpanel:::helper_plotly_label(model)
+model_values <- cbind(model_values, data_add)
+names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+model_values <- model_values[order(model_values$Residual), ]
+plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
+    label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
+    y = "Sample Quantiles")
+plot_data <- ggplot_build(plot)
+model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+model_values$Residual_Plot <- model_values$Residual
+
+
+# plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+#     label = "Data")) + stat_qq_point() + geom_point(mapping = aes_string(x = "Theoretical", 
+#     y = "Residual")) + labs(x = "Theoretical Quantiles", 
+#     y = "Sample Quantiles")
+
+p_MAPE <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"),
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
+
+p_MAPE_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_band() + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"),
+                                # plot.title = element_text(size = 10, face = "bold"), 
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
+
+p_MAPE
+p_MAPE_band
+
+
 
 (design_X <- getME(mod_test, "X"))
 design_X %*% t(design_X)
@@ -135,11 +190,55 @@ xtable::xtable(pairs(emmeans_1))
 library(ggResidpanel)
 resid_panel(mod_test)
 
-p_RMSPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+# p_RMSPE <- resid_panel(mod_test, type='response', plots = "qq") + 
+#     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+#                                 plot.background = element_rect(fill = "white"))
+
+# p_RMSPE
+
+
+type = "response"
+model = mod_test
+model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+r_label <- ggResidpanel:::helper_label(type, model)
+data_add <- ggResidpanel:::helper_plotly_label(model)
+model_values <- cbind(model_values, data_add)
+names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+model_values <- model_values[order(model_values$Residual), ]
+plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
+    label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
+    y = "Sample Quantiles")
+plot_data <- ggplot_build(plot)
+model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+model_values$Residual_Plot <- model_values$Residual
+
+
+p_RMSPE <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-                                plot.background = element_rect(fill = "white"))
+                                plot.background = element_rect(fill = "white"),
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
+
+p_RMSPE_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_band() + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"),
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
 
 p_RMSPE
+p_RMSPE_band
+
+
+
+
+
+
 
 
 summary(mod_test)
@@ -184,11 +283,51 @@ pairs(emmeans_1)
 library(ggResidpanel)
 resid_panel(mod_test)
 
-p_SSIM <- resid_panel(mod_test, type='response', plots = "qq") + 
+# p_SSIM <- resid_panel(mod_test, type='response', plots = "qq") + 
+#     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+#                                 plot.background = element_rect(fill = "white"))
+
+# p_SSIM
+
+
+type = "response"
+model = mod_test
+model_values <- data.frame(Residual = ggResidpanel:::helper_resid(type = "response", model = mod_test))
+r_label <- ggResidpanel:::helper_label(type, model)
+data_add <- ggResidpanel:::helper_plotly_label(model)
+model_values <- cbind(model_values, data_add)
+names(model_values)[which(names(model_values) == "data_add")] <- "Data"
+model_values <- model_values[order(model_values$Residual), ]
+plot <- ggplot(data = model_values, mapping = aes_string(sample = "Residual", 
+    label = "Data")) + stat_qq_point() + labs(x = "Theoretical Quantiles", 
+    y = "Sample Quantiles")
+plot_data <- ggplot_build(plot)
+model_values$Theoretical <- plot_data[[1]][[1]]$theoretical
+model_values$Residual_Plot <- model_values$Residual
+
+
+p_SSIM <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
     theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
-                                plot.background = element_rect(fill = "white"))
+                                plot.background = element_rect(fill = "white"),
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
+
+p_SSIM_band <- ggplot(data = model_values, mapping = aes_string(sample = "Residual_Plot", 
+    label = "Data")) + stat_qq_band() + stat_qq_point() + 
+    labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + 
+    stat_qq_line(color = "blue", size = 0.5) + 
+    theme_minimal() + theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5, linetype = "solid"), 
+                                plot.background = element_rect(fill = "white"),
+                                axis.text = element_text(size = 15),
+                                axis.title = element_text(size = 20))
 
 p_SSIM
+p_SSIM_band
+
+
 
 
 summary(mod_test)
@@ -217,8 +356,16 @@ coef(mod_test)$img
 
 
 pdf('qqplots.pdf')
-p_MAPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to MAPE measures')
-p_RMSPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to RMSPE measures')
-p_SSIM + ggtitle('Q-Q Plot for residuals of radom effects model fitted to SSIM measures')
+p_MAPE_band
+p_RMSPE_band
+p_SSIM_band
+
+p_MAPE
+p_RMSPE
+p_SSIM
+
+# p_MAPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to MAPE measures')
+# p_RMSPE + ggtitle('Q-Q Plot for residuals of radom effects model fitted to RMSPE measures')
+# p_SSIM + ggtitle('Q-Q Plot for residuals of radom effects model fitted to SSIM measures')
 dev.off()
 
