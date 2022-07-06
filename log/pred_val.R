@@ -23,8 +23,8 @@ for(i in 1:5){
     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])   ## Only the scaled versions
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 13,14,10), ])   ## Only the scaled versions
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 13,14,10), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -76,7 +76,7 @@ library(ggplot2)
 
 tmp <- all_dat %>%
   pivot_longer(!c(DL, measures, errs, method), names_to = "img", values_to = "vals") %>% 
-  filter(measures == "SSIM") %>% 
+  filter(measures == "RMSPE") %>% 
   pivot_wider(names_from = img, values_from = vals) %>% 
   select(-c(measures)) %>% 
   arrange(method) %>%
@@ -84,6 +84,8 @@ tmp <- all_dat %>%
   relocate(DL, .after=method) %>% 
   mutate(DL = ifelse(DL, "DL", "")) %>% 
   mutate(method = interaction(DL, method)) %>% 
+  # mutate_if(is.numeric, ~ . * 100) %>%
+  # select(starts_with("V"), ~ . * 100) %>%
   select(-DL)
 
 library(xtable)
@@ -145,7 +147,7 @@ tmp_dat %>%
   mutate(img = img) %>% 
   ggplot() + 
     aes(x = interaction(DL, method_old), y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img)) +
@@ -169,7 +171,7 @@ p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -190,7 +192,7 @@ p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -212,7 +214,7 @@ p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
     ggplot() + 
     aes(x = method, y = vals, group = errs, shape=method, color=factor(errs), linetype = factor(errs)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -319,3 +321,8 @@ ggsave('Legend2.png', scale=1.0)
 #                                 ylab(NULL) +
 #      theme(strip.background = element_blank(),
 #            strip.placement = "outside")
+
+
+
+sys.call("convert Legend1.png -trim Legend1.trim.png")
+sys.call("convert Legend2.png -trim Legend2.trim.png")

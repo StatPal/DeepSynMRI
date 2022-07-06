@@ -1,5 +1,5 @@
 
-R version 4.2.0 (2022-04-22) -- "Vigorous Calisthenics"
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
 Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -25,8 +25,8 @@ Type 'q()' to quit R.
 +     f1 <- paste0("values/pred-noise-", noise_vec[i], "-INU-00.csv")
 +     f2 <- paste0("values/DL-pred-noise-", noise_vec[i], "-INU-00.csv")
 + 
-+     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])  # to take only the normalized? versions c(4,5,3, 9,10,8)
-+     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
++     all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 13,14,10), ])  # to take only the normalized? versions c(4,5,3, 9,10,8)
++     all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 13,14,10), ])
 + }
 > 
 > all_normal <- data.frame(all_normal)
@@ -141,8 +141,8 @@ errf = 10:
 
 Degrees-of-freedom method: kenward-roger 
 > xtable::xtable(pairs(emmeans_1))
-% latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Tue Jun 21 22:14:04 2022
+% latex table generated in R 4.2.1 by xtable 1.8-4 package
+% Wed Jul  6 10:23:40 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrl}
@@ -1226,8 +1226,8 @@ errf = 10:
 
 Degrees-of-freedom method: kenward-roger 
 > xtable::xtable(pairs(emmeans_1))
-% latex table generated in R 4.2.0 by xtable 1.8-4 package
-% Tue Jun 21 22:14:07 2022
+% latex table generated in R 4.2.1 by xtable 1.8-4 package
+% Wed Jul  6 10:23:42 2022
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrl}
@@ -1953,6 +1953,8 @@ pdf
   2 
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  8.566   0.160   8.714 
+> sys.call("pdfcrop qqplots.pdf")
+Error in sys.call("pdfcrop qqplots.pdf") : invalid 'which' argument
+In addition: Warning message:
+In sys.call("pdfcrop qqplots.pdf") : NAs introduced by coercion
+Execution halted

@@ -11,8 +11,8 @@ for(i in 1:3){
     f1 <- paste0("values/pred-noise-5-INU-", INU_vec[i], ".csv")
     f2 <- paste0("values/DL-pred-noise-5-INU-", INU_vec[i], ".csv")
 
-    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 11,12,10), ])
-    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 11,12,10), ])
+    all_normal <- rbind(all_normal, as.matrix(read.csv(f1, header = F))[c(6,7,3, 13,14,10), ])
+    all_DL     <- rbind(all_DL    , as.matrix(read.csv(f2, header = F))[c(6,7,3, 13,14,10), ])
 }
 
 all_normal <- data.frame(all_normal)
@@ -55,6 +55,7 @@ tmp <- all_dat %>%
   relocate(DL, .after=method) %>% 
   mutate(DL = ifelse(DL, "DL", "")) %>% 
   mutate(method = interaction(DL, method)) %>% 
+  mutate_if(is.numeric, ~ . * 100) %>%
   select(-DL)
 
 print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
@@ -69,6 +70,7 @@ tmp <- all_dat %>%
   relocate(DL, .after=method) %>% 
   mutate(DL = ifelse(DL, "DL", "")) %>% 
   mutate(method = interaction(DL, method)) %>% 
+  mutate_if(is.numeric, ~ . * 100) %>%
   select(-DL)
 
 print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
@@ -83,6 +85,7 @@ tmp <- all_dat %>%
   relocate(DL, .after=method) %>% 
   mutate(DL = ifelse(DL, "DL", "")) %>% 
   mutate(method = interaction(DL, method)) %>% 
+  mutate_if(is.numeric, ~ . * 100) %>%
   select(-DL)
 
 print(xtable(tmp, digits=c(1,1,0,2,2,2,2,2,2,2,2,2)), include.rownames=FALSE)
@@ -125,7 +128,7 @@ p <- tmp_dat %>%
   filter(measures == "MAPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -146,7 +149,7 @@ p <- tmp_dat %>%
   filter(measures == "RMSPE") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -168,7 +171,7 @@ p <- tmp_dat %>%
   filter(measures == "SSIM") %>%
   ggplot() + 
     aes(x = method, y = vals, group = INU, shape=method, color=factor(INU), linetype = factor(INU)) +
-    geom_point(size=3.5) + 
+    geom_point(size=3) + 
     scale_shape_manual(values = new_styles[1:4]) + 
     scale_colour_manual(values=my_cols) + 
     facet_grid(cols = vars(img_vals)) +
@@ -241,3 +244,6 @@ ggsave('SE-INU-Legend2.png', scale=1.0)
 
 
 
+
+sys.call("convert Legend1.png -trim SE-INU-Legend2.trim.png")
+sys.call("convert SE-INU-Legend2.png -trim SE-INU-Legend2.trim.png")
