@@ -6,6 +6,13 @@ perf_MLE <- pred[c(13,14,10), ]
 perf_DL_LS <- pred[c(20,21,17), ]
 perf_DL_MLE <- pred[c(27,28,24), ]
 
+
+tmp_LS <- (perf_DL_LS / perf_LS - 1) * 100
+tmp_LS[1:2,] <- -tmp_LS[1:2,]
+
+xtable::xtable(tmp_LS)
+
+
 perf_new <- rbind(perf_LS, perf_MLE, perf_DL_LS, perf_DL_MLE)
 
 method <- rep(c("LS", "MLE"), each=3, times=2)  # The second will be 3

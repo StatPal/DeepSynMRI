@@ -1,0 +1,35 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> n_x <- 181; n_y <- 217; n_z <- 36
+> 
+> TE_values = c(0.01, 0.015,  0.02, 0.01, 0.03,  0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1)
+> TR_values = c( 0.6,   0.6,   0.6,    1,     1,    1,    2,    2,    2,    3,    3,   3)
+> min_TE = min(TE_values)
+> min_TR = min(TR_values)
+> TE_scale = 2.01 / min_TE
+> TR_scale = 2.01 / min_TR
+> 
+> mask_vec <- as.logical( as.matrix( read.csv("intermed/mask_vec.csv", header=F) )[,1] )
+Error in file(file, "rt") : cannot open the connection
+Calls: as.matrix -> read.csv -> read.table -> file
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file 'intermed/mask_vec.csv': No such file or directory
+Execution halted
