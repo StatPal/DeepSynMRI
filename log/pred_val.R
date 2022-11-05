@@ -231,7 +231,15 @@ p3 <- p +
   labs(color  = "Noise percentage", linetype = "Noise percentage", shape = "Method") + 
   xlab('\nMethod') + ylab("SSIM") 
 p3
-ggsave('SSIM.png')
+
+
+p3 + theme(legend.position="none", 
+              strip.background = element_blank(),
+              strip.text.x = element_blank(), 
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
+              axis.title.y = element_text(margin = margin(t = 0, r = 0, b = 20, l = 0)))
+
+ggsave('SSIM.png', scale=0.8, width=6, height=4)
 
 
 library(patchwork)
@@ -280,6 +288,25 @@ ggsave('Legend2.png', scale=1.0)
 
 
 
+
+
+p3_new <- p3 + theme(legend.position="none", 
+              strip.background = element_blank(),
+              strip.text.x = element_blank(), 
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1),
+              axis.title.y = element_text(margin = margin(t = 0, r = 0, b = 20, l = 0)))
+
+library(patchwork)
+
+layout <- c(
+area(1, 1, 3, 4),
+area(3, 1, 3, 4),
+area(4, 1, 5, 4)
+)
+
+p3_new / legend1 / legend2 +  plot_layout(design = layout)
+
+ggsave('SSIM-new.png', scale=0.75)
 
 
 
