@@ -1,6 +1,9 @@
 # DeepSynMRI
 
-Created by:
+This is a package which uses deep learning method, Deep Image Prior, to enahance Synthetic MRI, especially effective for noisy MRI. 
+
+
+The environment created by:
 ```bash
 conda create --name DeepSynMRI
 conda activate DeepSynMRI
@@ -28,8 +31,6 @@ conda install pandas
 
 
 
-```
+```bash
 conda activate DeepSynMRI
-
-conda activate ~/anaconda3/envs/DeepSynMRI
 ```
