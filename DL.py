@@ -36,27 +36,13 @@ sigma_ = sigma/255.
 DEBUG = 0
 
 
-
-############## LOAD IMAGE: ############################
-
 import pandas as pd
-
-
-
 
 # f = 'W_MLE.csv'
 # dat_iter = np.asarray(pd.read_csv(f, header=None))  ## np.asarray gives different format
-# dat_2 = dat_iter.reshape(20, 256, 256, 3)
-# dat_2 = dat_2.transpose(1, 2, 0, 3)
-
-# num_iter = 15000
-
-# Fri Apr 15 08:45:56 PM CDT 2022
-# Everything in the n_z, n_y, n_y
-# No -- according to the current file: n_x, n_y, n_z
 
 
-def DL_W(W, n_x, n_y, n_z, num_iter):
+def DL_smooth_3(W, n_x, n_y, n_z, num_iter):
 
 	dat_iter = W
 	dat_2 = dat_iter.reshape(n_x, n_y, n_z, 3)
@@ -168,9 +154,6 @@ def DL_W(W, n_x, n_y, n_z, num_iter):
 				net_input = net_input_saved + (noise.normal_() * reg_noise_std)
 			
 			out = net(net_input)
-			if DEBUG:
-				print(out.shape)
-				print(img_noisy_torch.shape)
 
 			# Smoothing
 			if out_avg is None:
@@ -192,16 +175,10 @@ def DL_W(W, n_x, n_y, n_z, num_iter):
 			# So 'PSRN_gt', 'PSNR_gt_sm' make no sense
 			if i % 20 == 0:
 				print ('Iteration %05d    Loss %f   PSNR_noisy: %f   PSRN_gt: %f PSNR_gt_sm: %f' % (i, total_loss.item(), psrn_noisy, psrn_gt, psrn_gt_sm), '\n', flush=True)
-			if  PLOT and i % show_every == 0:
-				out_np = torch_to_np(out)
-				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
-				out_np = out_np*scaling_factor/255
-				print(out_np.shape)
 			if i % 1000 == 0:
 				out_np = torch_to_np(out)
-				out_np = out_np[0,0:n_x,0:n_y,0:n_z]
-				out_np = out_np*scaling_factor
-				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv", header=None, index=None)
+				out_np = out_np[0,0:n_x,0:n_y,0:n_z] * scaling_factor
+				pd.DataFrame(out_np.reshape(n_x * n_y * n_z)).to_csv("intermed/intermed/3D_"+str(target)+"_i_"+str(i)+"_test_4.csv.gz", header=None, index=None, compression="gzip")
 			
 			
 			# Backtracking
@@ -234,18 +211,9 @@ def DL_W(W, n_x, n_y, n_z, num_iter):
 		print("tgt: ", target, ", current time = ", current_time, flush = True)
 
 		out_np = torch_to_np(net(net_input))
-
-		if DEBUG:
-			print("shape is:", out_np.shape)
-		out_np = out_np[0, 0:n_x, 0:n_y, 0:n_z]
-		if DEBUG:
-			print("shape is:", out_np.shape)
 		out_np = out_np*scaling_factor   ## /255
 
-		plt.imshow(out_np[:,:,10])
-		plt.savefig("intermed/3D_"+str(target)+"_test_4.pdf")
-
-		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv", header=None, index=None)		
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv.gz", header=None, index=None, , compression="gzip")
 		W_out[:,target] = out_np.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
