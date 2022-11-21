@@ -56,7 +56,7 @@ import pandas as pd
 # No -- according to the current file: n_x, n_y, n_z
 
 
-def DL_W(W, reshape_vec, transpose_vec, n_x, n_y, n_z, num_iter):
+def DL_W(W, n_x, n_y, n_z, num_iter):
 
 	dat_iter = W
 	dat_2 = dat_iter.reshape(n_x, n_y, n_z, 3)

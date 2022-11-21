@@ -1,5 +1,4 @@
-## Training flash images - test images - do later
-# all angle 15
+## Clean everything etc
 
 import os
 import numpy as np
@@ -7,10 +6,48 @@ import nibabel as nib
 import pandas as pd
 import datetime
 from matplotlib import pyplot as plt
+from skimage.metrics import structural_similarity as ssim
 
-np.set_printoptions(precision=6, suppress=True)
 
-print(datetime.datetime.now(), flush=True)
+
+## Inputs
+img1 = nib.load('../data/noise-1-INU-00/brainweb_0.mnc.gz')
+n_x = img1.shape[0]; n_y = img1.shape[1]; n_z = img1.shape[2]
+
+image_vec = np.ones([n_x*n_y*n_z, 12])
+train_ind = [0, 8, 9]
+test_ind = np.setdiff1d(range(12), train_ind)
+
+
+for i in range(3):
+    img = nib.load('../data/noise-1-INU-00/brainweb_'+str(i)+'.mnc.gz')
+    data = img.get_fdata()
+    data_reshaped = data
+    image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
+
+
+for i in range(9):
+    img = nib.load('../data/test-noise-0-INU-00/brainweb_'+str(i)+'.mnc.gz')
+    data = img.get_fdata()
+    data_reshaped = data
+    image_vec[:, test_ind[i]] = data_reshaped.reshape(-1)
+
+
+dat_2 = image_vec.reshape(n_x, n_y, n_z, 12)
+plt.imsave("tmp.pdf", dat_2[18,:,:,1])
+# plt.imsave("tmp.pdf", dat_2[:,109,:,1])
+# plt.imsave("tmp.pdf", dat_2[:,:,81,1])
+
+
+
+## SCALING: - It is not same as the previous scaling as possibly then every error had the same scaling I think 
+train_scale_factor = 400 / np.max(image_vec)
+image_vec = image_vec * train_scale_factor
+n, m = image_vec.shape
+print(np.max(image_vec, axis=0))
+
+
+
 
 
 
@@ -19,69 +56,25 @@ print(datetime.datetime.now(), flush=True)
 mask_all = nib.load('../data/mask/subject47_crisp_v.mnc.gz')
 mask_all = mask_all.get_fdata()
 mask = (mask_all == 0)
-
-mask_reshaped_mid = mask.transpose([2,1,0])
-# mask_reshaped = mask_reshaped_mid[1::2, 1::2, 1::10]
-# mask_reshaped = mask_reshaped_mid[1::2, 1::2, 9::10]   ## Here 4-5 would be a better option
-mask_reshaped = mask_reshaped_mid[1::2, 1::2, 5::10]
-mask_reshaped.shape   # Matches R size
-mask_vec = mask_reshaped.reshape((-1,1))
-
-n_x = 181; n_y = 217; n_z = 36
-dat_2 = mask_reshaped.reshape(n_x, n_y, n_z)
-plt.imsave("tmp.pdf", dat_2[:,:,10])
+mask_reshaped = mask[5::10, 1::2, 1::2]
+mask_reshaped.shape
+# mask_vec = mask_reshaped.reshape((-1,1))
+mask_vec = mask_reshaped.reshape(-1)
+mask_vec = mask_vec[:,None]  # shape (*,1)
 
 
-image_vec = np.ones([181*217*36, 12])
-train_ind = [0, 8, 9]
-test_ind = np.setdiff1d(range(12), train_ind)
+# dat_2 = image_vec.reshape(n_x, n_y, n_z, 12)
+# plt.imsave("tmp.pdf", dat_2[18,:,:,1])
+# plt.imsave("tmp.pdf", dat_2[:,109,:,1])
+# plt.imsave("tmp.pdf", dat_2[:,:,81,1])
 
-
-data = pd.read_csv('../whole_new/LS_with_deep_slices/train_noisy-5-INU-00.csv.gz', header=None).to_numpy()
-tmp = data[:,0].reshape(n_z, n_y, n_x).transpose([2,1,0]).reshape(-1)
-img = nib.load('../data/noise-5-INU-00/brainweb_0.mnc.gz')
-data = img.get_fdata()
-tmp2 = data.transpose([2,1,0]).reshape(-1)
-train_scale_factor = np.max(tmp)/np.max(tmp2)
-print(train_scale_factor)  ## Needed for DL
+# masking = mask_vec.reshape(n_x, n_y, n_z)
+# plt.imsave("tmp.pdf", masking[18,:,:])
+# plt.imsave("tmp.pdf", masking[:,109,:])
+# plt.imsave("tmp.pdf", masking[:,:,81])
 
 
 
-
-
-
-for i in range(3):     ## BUG - was range(2)
-    img = nib.load('../data/noise-5-INU-00/brainweb_'+str(i)+'.mnc.gz')
-    data = img.get_fdata()
-    data_reshaped = data.transpose([2,1,0])
-    print(train_ind[i])
-    image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
-
-dat_2 = image_vec.reshape(n_x, n_y, n_z, 12)
-plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 0])
-
-for i in range(9):
-    img = nib.load('../data/test-noise-0-INU-00/brainweb_'+str(i)+'.mnc.gz')
-    data = img.get_fdata()
-    data_reshaped = data.transpose([2,1,0])
-    image_vec[:, test_ind[i]] = data_reshaped.reshape(-1)
-
-print(np.max(image_vec, axis=0))
-
-
-image_vec = image_vec * train_scale_factor
-n, m = image_vec.shape
-print(np.max(image_vec, axis=0))
-
-
-## DL images: 
-for i in range(3):
-    data = pd.read_csv('../whole_new/LS_with_deep_slices/3D/intermed/train_noisy-5-INU-00.csv.gzintermed_'+str(i)+'_noisy_train-seed-1.csv.gz', header=None).to_numpy()
-    data_2 = data[:,0].reshape(n_z, n_y, n_x)
-    data_reshaped = data_2.transpose([2,1,0])
-    image_vec[:, train_ind[i]] = data_reshaped.reshape(-1)
-
-print(np.max(image_vec, axis=0))
 
 
 
@@ -114,26 +107,37 @@ TR_test = TR_values[test_ind]
 
 
 
-dat_2 = train.reshape(n_x, n_y, n_z, 3)
-plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 1])
-# Check:
-dat_2.reshape((-1,3)).shape
-train.shape
-np.array_equal(train, dat_2.reshape((-1,3)))
+# dat_2 = train.reshape(n_x, n_y, n_z, 3)
+# plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 1])
+# # Check:
+# dat_2.reshape((-1,3)).shape
+# train.shape
+# np.array_equal(train, dat_2.reshape((-1,3)))
+
+# train_3D = train.reshape(n_x, n_y, n_z, 3)
+# pd.DataFrame(train_3D[:,:,18, 0]).to_csv("figs/new/DL-LS-train-noise-1-INU-00-img-0-axis-1.csv", header=None, index=None)
 
 
 
 
-### LS and MLE estimates
+### DL from training images
+from W_DL import DL_W
+
+num_iter = 150
+train_DL = DL_W(train, n_x, n_y, n_z, num_iter)
+
+
+
+
+### LS estimates
 from estimate.Bloch import *
 from estimate.LS import *
 
 print(datetime.datetime.now(), flush=True)
-W_LS_par = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale, mask_vec, 90)  ## BUG - angle was not specified - spotted
-pd.DataFrame(W_LS_par).to_csv("intermed/DL-W_LS_par-INU-00.csv", header=None, index=None)
+W_LS_par = LS_est_par(TE_train, TR_train, train_DL, TE_scale, TR_scale, mask_vec, 90)  ## 1-INU-00 - angle was not specified - spotted
+pd.DataFrame(W_LS_par).to_csv("intermed/DL-W_LS_par-noise-1-INU-00.csv", header=None, index=None)
 print(datetime.datetime.now(), flush=True)                  ## Takes about 18 min in my laptop
-W_LS_par = pd.read_csv("intermed/DL-W_LS_par-INU-00.csv", header=None).to_numpy()
-
+W_LS_par = pd.read_csv("intermed/DL-W_LS_par-noise-1-INU-00.csv.gz", header=None).to_numpy()
 
 dat_2 = W_LS_par.reshape(n_x, n_y, n_z, 3)
 plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 1])
@@ -141,20 +145,33 @@ plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 1])
 
 
 
+
+
+
 ## Predict
-LS_pred_old  = predict_image_par(W_LS_par, TE_test, TR_test, 90)  ## BUG 2: There would be angle too
+LS_pred_old  = predict_image_par(W_LS_par, TE_test, TR_test, 90)
 LS_pred = np.asarray(LS_pred_old)
 
 dat_2 = LS_pred.reshape(n_x, n_y, n_z, 9)
 plt.imsave("tmp-DL.pdf", dat_2[:,:,10, 1])
 
 
-
 LS_pred[mask_vec[:,0],:] = 0
 test[mask_vec[:,0],:] = 0
 
+LS_pred_3D = LS_pred.reshape(n_x, n_y, n_z, 9)
+test_3D = test.reshape(n_x, n_y, n_z, 9)
+
+SSIM_vals = np.zeros(9)
+for i in range(9):
+    SSIM_vals[i] = ssim(LS_pred_3D[:,:,:,i], test_3D[:,:,:,i])
 
 tmp_diff = abs(LS_pred - test)
 print( np.mean(tmp_diff, axis=0) )
-print( np.nanmean(2 * tmp_diff / (test + LS_pred), axis=0) )
+print( np.sqrt( np.mean(tmp_diff **2, axis=0) ) )
+print(SSIM_vals * 100)
+perf_LS = np.asarray([np.mean(tmp_diff, axis=0), np.sqrt( np.mean(tmp_diff **2, axis=0) ), SSIM_vals * 100, 
+                        np.nanmean(2 * tmp_diff / (test + LS_pred), axis=0), np.sqrt( np.nanmean(2 * tmp_diff ** 2 / (test ** 2 + LS_pred ** 2), axis=0)),
+                        np.mean(tmp_diff[~mask_vec[:,0],:], axis=0) / np.mean(abs(test[~mask_vec[:,0],:] - np.median(test[~mask_vec[:,0],:]))),
+                        np.sqrt( np.mean((tmp_diff[~mask_vec[:,0],:])**2, axis=0) ) / np.std(test[~mask_vec[:,0],:], axis=0)])
 
