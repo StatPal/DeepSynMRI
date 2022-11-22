@@ -43,7 +43,7 @@ The three main functions for a bare minimum of the whole process are:
 
 - `LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale, mask_vec, flip_angle)` is the function to do the least square estimate of `W`, i.e., the paramteric maps of rho, T1, T2 (reparametrized, see the paper), which is the output of size `n x m`, where m is the number of training images (usually `m = 3`). `TE_train` and `TR_train` are the TE and TR values of the corresponnding training images. `mask_vec` is the mask vector of size `(n, 1)` where 1 means the voxel is masked. `flip_angle` is the flip angle in degrees, which is 90 for Spin Echo acquisitions(default). `TE_scale` and `TR_scale` should be `1` if the TE and TR values are not scaled from the original values[^1].
 
-- `predict_image_par(W, TE_test, TR_test, flip_angle)` is teh function to get the predicted synthetic image from the paramteric maps `W` with `TE_test` and `TR_test` as the TE and TR values for the test settings and `flip_angle` as the flip angle of the test images. 
+- `predict_image_par(W, TE_test, TR_test, flip_angle)` is the function to get the predicted synthetic image from the paramteric maps `W` with `TE_test` and `TR_test` as the TE and TR values for the test settings and `flip_angle` as the flip angle of the test images. 
 
 Last two functions can be called as: 
 ```py
