@@ -54,7 +54,7 @@ from estimate.LS import *
 
 Other functions include: 
 - `MLE_est_par(W_init, TE_vec, TR_vec, train_mat, TE_scale, TR_scale, sigma_train, mask)` which calculates the MLE for the `W` according to Rice distribution instead of using Least Square method (which assumes simplified Normal distribution). `W_init` is a initial value of `W` provided for this process. `sigma_train` is an estimate of the standard deviation parameters, usually estimated using some other means. 
-- `DL_smooth_individual(train, n_x, n_y, n_z, iter_num)` does a similar thing as `DL_smooth_3` but with one image at a time. 
+- `DL_single(train, n_x, n_y, n_z, iter_num)` does a similar thing as `DL_smooth_3` but with one image at a time. 
 - `DL_smooth_m(train, n_x, n_y, n_z, m, iter_num)` does a similar thing as `DL_smooth_3` but with `m` image at a time. This can be used to smooth the images after they are predicted. 
 
 Most of the functions are paralleized. 
