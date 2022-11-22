@@ -88,7 +88,7 @@ train_DL = DL_smooth_3(train, n_x, n_y, n_z, 150)
 ### LS estimates
 from estimate.Bloch import *
 from estimate.LS import *
-W_LS = LS_est_par(TE_train, TR_train, train_DL, TE_scale, TR_scale, mask_vec, 90)    
+W_LS = LS_est_par(TE_train, TR_train, train_DL, TE_scale, TR_scale, mask_vec, 90)
 # with FLASH image, you should put the specific angle here instead of 90 
 
 
