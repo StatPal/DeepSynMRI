@@ -6,11 +6,11 @@ This is a package which uses deep learning method, Deep Image Prior, to enahance
 The main workflow is:
 The training images in 3 (or more) settings is DL enhanced first using the fucntion `DL_smooth_3`. Then LS estimate of the underlying parametric maps (W, reparametrized rho, T1, T2) is calculated using the function `LS_est_par`. And then `predict_image_par` uses the `W` to predict MR images in new settings.  
 
-An example is provided with example in the file `SE_example_DL.py`. 
-The dataset is in the folder `data` with one folder with mask, one folder with training data images with 3 images, and one folder with test data with 9 images. 
+An complete example is provided with example in the file `SE_example_DL.py`. 
+The dataset is in the folder `data` with three sub-folders, one sub-folder with the mask, one sub-folder with the three training volumetric images, and one sub-folder with nine test volumetric images. 
 
 ### Python Environment
-The environment was created by conda with commands:
+The environment is created by conda with commands:
 ```bash
 conda create --name DeepSynMRI
 conda activate DeepSynMRI
