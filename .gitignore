@@ -1,6 +1,7 @@
 ## Subrata new
 *.csv
 *.csv.gz
+Check/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
