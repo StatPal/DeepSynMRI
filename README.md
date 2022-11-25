@@ -1,6 +1,6 @@
 # DeepSynMRI
 
-This is a package which uses deep learning method, Deep Image Prior, to enahance Synthetic MRI, especially effective for noisy MRI. 
+This is a package which uses deep learning method, Deep Image Prior, to enahance Synthetic MRI, especially effective for noisy MRI. The repository is based on the paper Personalized synthetic MR imaging with deep learning enhancements by Pal et al., [2022](http://doi.org/10.1002/mrm.29527).
 
 ### Workflow
 The main workflow is:
@@ -114,3 +114,16 @@ If you think you have cuda enabled GPU which is large enough so that it can acco
 `dtype = torch.FloatTensor` to `dtype = torch.cuda.FloatTensor` and 
 `net_param.data.copy_(new_param.cpu())` to `net_param.data.copy_(new_param.cuda())`
 in the `DL.py` file.
+
+
+### Citation
+```
+@article{https://doi.org/10.1002/mrm.29527,
+    author = {Pal, Subrata and Dutta, Somak and Maitra, Ranjan},
+    title = {Personalized synthetic MR imaging with deep learning enhancements},
+    journal = {Magnetic Resonance in Medicine},
+    doi = {https://doi.org/10.1002/mrm.29527},
+    url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.29527},
+    eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/mrm.29527}
+}
+```
