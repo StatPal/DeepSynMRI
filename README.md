@@ -1,6 +1,6 @@
 # DeepSynMRI
 
-This is a package which uses deep learning method, Deep Image Prior, to enahance Synthetic MRI, especially effective for noisy MRI. The repository is based on the paper Personalized synthetic MR imaging with deep learning enhancements by Pal et al., [2022](http://doi.org/10.1002/mrm.29527).
+This is a package for deep learning ehancements to synthetic Magnetic Resonance Imaging (MRI) via a Deep Image Prior, that is especially effective in noisier situations. The repository is the underling code for the paper "Personalized synthetic MR imaging with deep learning enhancements by Pal, Dutta and Maitra", [Magnetic Resonance in Medicine, 2022](http://doi.org/10.1002/mrm.29527).
 
 ### Workflow
 The main workflow is:
