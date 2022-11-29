@@ -1,22 +1,4 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-  authors:
-- family-names: "Pal"
-  given-names: "Subrata"
-  orcid: "https://orcid.org/0000-0002-3325-431X"
-- family-names: "Dutta"
-  given-names: "Somak"
-  orcid: "https://orcid.org/0000-0002-5613-8987"
-- family-names: "Maitra"
-  given-names: "Ranjan"
-  orcid: "https://orcid.org/0000-0002-3515-8532"
-title: "Personalized synthetic MR imaging with deep learning enhancements"
-journal: "Magnetic Resonance in Medicine"
-doi: https://doi.org/10.1002/mrm.29527
-url: "https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.29527"
-preferred-citation:
-  type: article
-    authors:
+authors:
   - family-names: "Pal"
     given-names: "Subrata"
     orcid: "https://orcid.org/0000-0002-3325-431X"
@@ -26,8 +8,21 @@ preferred-citation:
   - family-names: "Maitra"
     given-names: "Ranjan"
     orcid: "https://orcid.org/0000-0002-3515-8532"
+cff-version: 1.2.0
+message: "If you use this software, please cite both the article from preferred-citation and the software itself."
+preferred-citation:
+  authors:
+    - family-names: "Pal"
+      given-names: "Subrata"
+      orcid: "https://orcid.org/0000-0002-3325-431X"
+    - family-names: "Dutta"
+      given-names: "Somak"
+      orcid: "https://orcid.org/0000-0002-5613-8987"
+    - family-names: "Maitra"
+      given-names: "Ranjan"
+      orcid: "https://orcid.org/0000-0002-3515-8532"
   title: "Personalized synthetic MR imaging with deep learning enhancements"
   journal: "Magnetic Resonance in Medicine"
-  doi: https://doi.org/10.1002/mrm.29527
-  url: "https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.29527"
-
+  doi: "https://doi.org/10.1002/mrm.29527"
+  type: article
+title: "My Research Software"
