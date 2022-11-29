@@ -118,11 +118,11 @@ in the `DL.py` file.
 
 ### Citation
 You can create a citation file from `Cite this repository` at the right side of the online github repository. Or you can copy from the following.
-APA
+#### APA
 ```
 Pal, S., Dutta, S., & Maitra, R. Personalized synthetic MR imaging with deep learning enhancements. Magnetic Resonance in Medicine. https://doi.org/10.1002/mrm.29527
 ```
-BibTeX
+#### BibTeX
 ```
 @article{https://doi.org/10.1002/mrm.29527,
     author = {Pal, Subrata and Dutta, Somak and Maitra, Ranjan},
