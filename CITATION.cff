@@ -23,6 +23,7 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0002-3515-8532"
   title: "Personalized synthetic MR imaging with deep learning enhancements"
   journal: "Magnetic Resonance in Medicine"
-  doi: "https://doi.org/10.1002/mrm.29527"
+  doi: "10.1002/mrm.29527"
+  url: "https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.29527"
   type: article
 title: "My Research Software"
