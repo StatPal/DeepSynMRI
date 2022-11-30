@@ -188,7 +188,7 @@ def DL_smooth_3(W, n_x, n_y, n_z, num_iter):
 
 					for new_param, net_param in zip(last_net, net.parameters()):
 						net_param.data.copy_(new_param.cpu()) ## for CPU, 
-						# change to net_param.data.copy_(new_param.cuda()) for GPU
+						# net_param.data.copy_(new_param.cuda()) ## for GPU
 
 					return total_loss*0
 				else:
@@ -211,9 +211,9 @@ def DL_smooth_3(W, n_x, n_y, n_z, num_iter):
 		print("tgt: ", target, ", current time = ", current_time, flush = True)
 
 		out_np = torch_to_np(net(net_input))
-		out_np = out_np*scaling_factor   ## /255
+		out_np = out_np[0,0:n_x,0:n_y,0:n_z]*scaling_factor   ## /255
 
-		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv.gz", header=None, index=None, , compression="gzip")
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv.gz", header=None, index=None, compression="gzip")
 		W_out[:,target] = out_np.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
@@ -383,7 +383,7 @@ def DL_single(img, n_x, n_y, n_z, num_iter):
 
                 for new_param, net_param in zip(last_net, net.parameters()):
                     net_param.data.copy_(new_param.cpu()) ## for CPU
-					# net_param.data.copy_(new_param.cuda()) for GPU
+                    # net_param.data.copy_(new_param.cuda()) ## for GPU
 
                 return total_loss*0
             else:
@@ -412,7 +412,7 @@ def DL_single(img, n_x, n_y, n_z, num_iter):
     out_np = out_np[0, 0:n_x, 0:n_y, 0:n_z]
     if DEBUG:
         print("shape is:", out_np.shape)
-    out_np = out_np*scaling_factor   ## /255
+    out_np = out_np[0:n_x,0:n_y,0:n_z]*scaling_factor   ## /255
 
     pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_test_4.csv", header=None, index=None)
     return out_np.reshape(n_x * n_y * n_z)
@@ -576,7 +576,7 @@ def DL_smooth_m(W, n_x, n_y, n_z, m, num_iter):
 
 					for new_param, net_param in zip(last_net, net.parameters()):
 						net_param.data.copy_(new_param.cpu()) ## for CPU, 
-						# change to net_param.data.copy_(new_param.cuda()) for GPU
+                                                # net_param.data.copy_(new_param.cuda()) ## for GPU
 
 					return total_loss*0
 				else:
@@ -599,9 +599,9 @@ def DL_smooth_m(W, n_x, n_y, n_z, m, num_iter):
 		print("tgt: ", target, ", current time = ", current_time, flush = True)
 
 		out_np = torch_to_np(net(net_input))
-		out_np = out_np*scaling_factor   ## /255
+		out_np = out_np[0,0:n_x,0:n_y,0:n_z]*scaling_factor   ## /255
 
-		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv.gz", header=None, index=None, , compression="gzip")
+		pd.DataFrame(out_np.reshape(n_x* n_y * n_z)).to_csv("intermed/3D_"+str(target)+"_test_4.csv.gz", header=None, index=None, compression="gzip")
 		W_out[:,target] = out_np.reshape(n_x * n_y * n_z)
 		time.sleep(50)
 
