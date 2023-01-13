@@ -82,13 +82,19 @@ TR_test = TR_values[test_ind]
 ### DL from training images (3 images)
 from DL import DL_smooth_3
 train_DL = DL_smooth_3(train, n_x, n_y, n_z, 150)
-
+pd.DataFrame(train_DL).to_csv("DL_smooth/train_DL_1.csv.gz", header=None, index=None, compression="gzip")
 
 
 ### LS estimates
 from estimate.Bloch import *
 from estimate.LS import *
+
+W_LS_no_DL = LS_est_par(TE_train, TR_train, train, TE_scale, TR_scale, mask_vec, 90)
+W_LS_no_DL = np.asarray(W_LS_no_DL)
+pd.DataFrame(W_LS_no_DL).to_csv("LS-py/W_1.csv.gz", header=None, index=None, compression="gzip")
+
 W_LS = LS_est_par(TE_train, TR_train, train_DL, TE_scale, TR_scale, mask_vec, 90)
+pd.DataFrame(W_LS).to_csv("LS-py/W_DL_1.csv.gz", header=None, index=None, compression="gzip")
 # with FLASH image, you should put the specific angle here instead of 90 
 
 
