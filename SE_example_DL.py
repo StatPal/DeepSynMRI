@@ -69,11 +69,11 @@ image_vec = image_vec / r_scale
 
 ## Divide into train and test with 3 train images:
 train = image_vec[:, train_ind]
-sigma_train = sigma_values[train_ind]
+# sigma_train = sigma_values[train_ind]
 TE_train = TE_values[train_ind]
 TR_train = TR_values[train_ind]
 test = image_vec[:, test_ind]
-sigma_test = sigma_values[test_ind]
+# sigma_test = sigma_values[test_ind]
 TE_test = TE_values[test_ind]
 TR_test = TR_values[test_ind]
 
