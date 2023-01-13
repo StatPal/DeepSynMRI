@@ -7,7 +7,8 @@ import pandas as pd
 import datetime
 from matplotlib import pyplot as plt
 from skimage.metrics import structural_similarity as ssim
-
+from pathlib import Path
+Path("intermed/intermed").mkdir(parents=True, exist_ok=True)
 
 
 # training and testing indices
