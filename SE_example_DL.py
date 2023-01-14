@@ -82,7 +82,9 @@ TR_test = TR_values[test_ind]
 
 ### DL from training images (3 images)
 from DL import DL_smooth_3
-train_DL = DL_smooth_3(train, n_x, n_y, n_z, 150)
+# num_iter = 150
+num_iter = 25000
+train_DL = DL_smooth_3(train, n_x, n_y, n_z, num_iter)
 pd.DataFrame(train_DL).to_csv("DL_smooth/train_DL_1.csv.gz", header=None, index=None, compression="gzip")
 
 
